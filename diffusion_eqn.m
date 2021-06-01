@@ -29,6 +29,8 @@ for ix = 1:Nx
     end
 end
 
+v_hist = zeros(1,Nt);
+
 N_branches = 1; % number of branches in fan-out used to model atrium
 Nx_branch = 300; % number of cells in each branch
 i_branch_plot = 1; % which branch to plot
@@ -48,62 +50,64 @@ for it = 1:Nt
         % and centered differencing in space, to represent d^2/dx^2:
         threshold = (v(ix) + b(ix)) / a; % cell fires when u > threshold
         term_excite = magnify * u(ix) * (1 - u(ix)) * (u(ix) - threshold);
-        term_2 = 0;
-        for i_branch = 1:N_branches
-            term_2 = term_2 + D * (u(ix)-u_branch(i_branch,1)) / Dx^2;
-        end
-        u_new(ix) = u(ix) + Dt * (term_2 + term_excite);
+        term_1 = D * (u(ix-1) - 2*u(ix) + u(ix+1)) / Dx^2;
+        u_new(ix) = u(ix) + Dt*(term_1 + term_excite);
     end
     for ix = 1:Nx
         v_new(ix) = v(ix) + Dt*(u(ix)-v(ix));
     end
     
-    % update each branch
-    for i = 1:N_branches
-        if i == 1
-            % something
-        elseif i == Nx
-            for i_branch = 1:N_branches % no-flow boundary condition
-                u_branch_new(i_branch, Nx_branch) = u_branch_new(i_branch, Nx_branch - 1);
-            end
-        else
-            for ix = 2:(Nx-1) 
-                term_excite = magnify * u(ix) * (1 - u(ix)) * (u(ix) - threshold);
-                term_2 = 0;
-                for i_branch = 1:N_branches
-                    term_2 = term_2 + D * (u(ix)-u_branch(i_branch,1)) / Dx^2;
-                end
-                u_new(ix) = u(ix) + Dt * (term_2 + term_excite);
-            end
-            for ix = 1:Nx
-                v_new(ix) = v(ix) + Dt*(u(ix)-v(ix));
-            end
-        end
-    end
-    
     % Enforce Neumann boundary conditions (du/dx=0) on the ends
     % of the system:
     u_new(1) = u_new(2);
-    u_new(Nx) = u_new(Nx-1);
+    
+    % only for cell Nx
+    u_new(Nx) = u(Nx) + Dt * D * (u(Nx-1) - u(Nx))/Dx^2;
+    for i_branch = 1:N_branches
+        u_new(Nx) = u_new(Nx) + Dt*D*(u_branch(i_branch,1) - u(Nx))/Dx^2;
+    end
+    threshold2 = (v(Nx) + b(Nx)) / a;
+    u_new(Nx) = u_new(Nx) + Dt*magnify*u(Nx)*(1 - u(Nx))*(u(Nx) - threshold2);
+    
+    %v_hist(it) = v(30);
+    %drawnow
     
     % Update for the next timestep:
     u = u_new;
     v = v_new;
+    
+    
+    % update each branch
+    for i_branch = 1:N_branches
+        % first cell of every branch
+        curr_L = D*(u(Nx)-u_branch(i_branch,1))/(N_branches*Dx^2);
+        curr_R = D*(u_branch(i_branch,2)-u_branch(i_branch,1))/Dx^2;
+        excite_cell = magnify*u_branch(i_branch,1)*(1-u_branch(i_branch,1))...
+            *(u_branch(i_branch,1)-(v_branch(i_branch,1)+b_branch)/a);
+        u_branch_new(i_branch,1) = u_branch(i_branch,1)+Dt*(curr_L+curr_R+excite_cell);
+        % interior cells
+        for ix = 2:Nx_branch - 1
+            term_1 = D*(u_branch(i_branch,ix-1)-2*u_branch(i_branch,ix)+u_branch(i_branch,ix+1))/Dx^2;
+            excite = magnify*u_branch(i_branch,ix)*(1-u_branch(i_branch,ix))...
+                *(u_branch(i_branch,ix)-(v_branch(i_branch,ix)+b_branch)/a);
+            u_branch_new(i_branch,ix)=u_branch(i_branch,ix)+Dt*(term_1+excite);
+        end
+        % boundary condition
+        u_branch_new(i_branch,Nx_branch)=u_branch_new(i_branch,Nx_branch-1);
+        for ix = 1:Nx_branch
+            v_branch_new(i_branch,ix)=v_branch(i_branch,ix)+Dt*(u_branch(i_branch,ix)-v_branch(i_branch,ix));
+        end
+    end
+    
     u_branch = u_branch_new;
     v_branch = v_branch_new;
-    
-    % for plotting
-    x_plot = [x, x_branch];
-    u_plot = [u, u_branch(i_branch_plot,:)];
-    v_plot = [v, v_branch(i_branch_plot,:)];
     
     % Plot every so often:
     if (mod(it,itplot)==0)
         figure(1);
-        plot(x,u,x,v);
-        axis([x(1),x(Nx),0,1]); % define the plot axes
-        title(sprintf('u vs. x at time %f',it*Dt));
-        xlabel('x'); ylabel('u');
+        x_plot = [x, x_branch];
+        u_plot = [u, u_branch(i_branch_plot,:)];
+        v_plot = [v, v_branch(i_branch_plot,:)];
         plot(x_plot,u_plot,x_plot,v_plot);
         axis([x_plot(1),x_plot(end),0,1]); % define the plot axes
         title(sprintf('u and v vs. x at time %f',it*Dt));
