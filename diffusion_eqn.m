@@ -23,15 +23,13 @@ for ix = 1:Nx
     % if we change this value to be smaller, we may not have enough mass to
     % generate a pulse and push it out of sinus node region
     if (ix<50) % if the cell is in the left region, composed of 49 cells
-        b(ix) = -0.1; % set the value of b in this cell to avoid neg number
+        b(ix) = -0.25; % set the value of b in this cell to avoid neg number
     else % right region
         b(ix) = b_val; % otherwise, set b i this cell to previous value 0.05
     end
 end
 
-v_hist = zeros(1,Nt);
-
-N_branches = 1; % number of branches in fan-out used to model atrium
+N_branches = 9; % number of branches in fan-out used to model atrium
 Nx_branch = 300; % number of cells in each branch
 i_branch_plot = 1; % which branch to plot
 b_branch = 0.05; % b_value for branches
@@ -41,6 +39,7 @@ u_branch = 0.01 * rand(N_branches, Nx_branch);
 v_branch = zeros(N_branches, Nx_branch);
 u_branch_new = zeros(N_branches, Nx_branch);
 v_branch_new = zeros(N_branches, Nx_branch);
+v_branch_point_hist = nan(1,Nt);
 
 % Timestep loop:
 for it = 1:Nt
@@ -69,24 +68,16 @@ for it = 1:Nt
     threshold2 = (v(Nx) + b(Nx)) / a;
     u_new(Nx) = u_new(Nx) + Dt*magnify*u(Nx)*(1 - u(Nx))*(u(Nx) - threshold2);
     
-    %v_hist(it) = v(30);
-    %drawnow
-    
-    % Update for the next timestep:
-    u = u_new;
-    v = v_new;
-    
-    
     % update each branch
     for i_branch = 1:N_branches
         % first cell of every branch
-        curr_L = D*(u(Nx)-u_branch(i_branch,1))/(N_branches*Dx^2);
+        curr_L = D*(u(Nx)-u_branch(i_branch,1))/Dx^2;
         curr_R = D*(u_branch(i_branch,2)-u_branch(i_branch,1))/Dx^2;
         excite_cell = magnify*u_branch(i_branch,1)*(1-u_branch(i_branch,1))...
             *(u_branch(i_branch,1)-(v_branch(i_branch,1)+b_branch)/a);
         u_branch_new(i_branch,1) = u_branch(i_branch,1)+Dt*(curr_L+curr_R+excite_cell);
         % interior cells
-        for ix = 2:Nx_branch - 1
+        for ix = 2:(Nx_branch - 1)
             term_1 = D*(u_branch(i_branch,ix-1)-2*u_branch(i_branch,ix)+u_branch(i_branch,ix+1))/Dx^2;
             excite = magnify*u_branch(i_branch,ix)*(1-u_branch(i_branch,ix))...
                 *(u_branch(i_branch,ix)-(v_branch(i_branch,ix)+b_branch)/a);
@@ -99,8 +90,13 @@ for it = 1:Nt
         end
     end
     
+    % Update for the next timestep:
+    u = u_new;
+    v = v_new;
     u_branch = u_branch_new;
     v_branch = v_branch_new;
+    
+    v_branch_point_hist(it) = v(end);
     
     % Plot every so often:
     if (mod(it,itplot)==0)
@@ -116,3 +112,20 @@ for it = 1:Nt
     end
     
 end
+
+figure(2);
+plot((0:(Nt-1))*Dt,v_branch_point_hist,'r');
+xlabel('Time');ylabel('v at branch point');
+
+figure(3);
+plot((0:(Nt-1))*Dt,v_branch_point_hist,'r');
+hold on;
+plot((0:(Nt-1))*Dt-6.7448,v_branch_point_hist,'g');
+xlabel('Time');ylabel('v at branch point');
+hold off;
+
+
+
+
+
+
