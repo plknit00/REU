@@ -6,7 +6,7 @@ D = 1.0; % Diffusion coefficient
 Nx = 300; % Number of grid points in our simulation model
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
 Dt = 0.1*(Dx*Dx)/D; % Timestep size (choose to be numerically stable)
-Nt = 10000; % Number of timesteps to run
+Nt = 60000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 u = 0.01*rand(1,Nx);
@@ -271,7 +271,7 @@ end
 % % close(vidObj);
 % 
 % figure(12);
-% % vidObj = VideoWriter('traces.avi');
+% % vidObj = VideoWriter('traces','MPEG-4'); ************* use for movies
 % % open(vidObj);
 % for theta = 0:359
 %     surf(v_traces(1:10:end,1:100:end));
@@ -320,19 +320,20 @@ end
 
 %% ************* Time loop of overlapping waves ****************
 
-% figure(19);
-% for it = 10301:100:Nt
-%     % normal pulses
-%     plot((0:((Nx_branch + Nx)-1))*Dx,u_traces(:,it),'r','LineWidth',2); hold on;
-%     plot((0:((Nx_branch + Nx)-1))*Dx,v_traces(:,it),'b','LineWidth',2); hold on;
-%     % lagging pulses
-%     plot((0:((Nx_branch + Nx)-1))*Dx,u_traces(:,it - 10300),'m','LineWidth',2); hold on;
-%     plot((0:((Nx_branch + Nx)-1))*Dx,v_traces(:,it - 10300),'c','LineWidth',2); hold off;
-%     title(sprintf('u and v vs. x at normal time = %f and lag time = %f',it*Dt,it*Dt-10.30));
-%     xlabel('x'); ylabel('u and v');
-%     legend('u normal', 'v normal', 'u lag', 'v lag');
-%     drawnow;
-% end
+figure(19);
+for it = 10301:100:Nt
+    % normal pulses
+    plot((0:((Nx_branch + Nx)-1))*Dx,u_traces(:,it),'r','LineWidth',2); hold on;
+    plot((0:((Nx_branch + Nx)-1))*Dx,v_traces(:,it),'b','LineWidth',2); hold on;
+    % lagging pulses
+    plot((0:((Nx_branch + Nx)-1))*Dx,u_traces(:,it - 10300),'m','LineWidth',2); hold on;
+    plot((0:((Nx_branch + Nx)-1))*Dx,v_traces(:,it - 10300),'c','LineWidth',2); hold off;
+    title(sprintf('u and v vs. x at normal time = %f and lag time = %f',it*Dt,it*Dt-10.30));
+    xlabel('x'); ylabel('u and v');
+    legend('u normal', 'v normal', 'u lag', 'v lag');
+    axis([x_plot(1), x_plot(end),0,1]);
+    drawnow;
+end
 
 %% **************** Plot of coupling term ******************
 
@@ -342,7 +343,7 @@ end
 % plot((0:(Nt-1))*Dt,coupl(cell_num_val,:),'LineWidth',2);
 % xlabel('time'); ylabel('Coupling term value');
 % title(sprintf('Coupling term value of cell = %f vs. time',cell_num_val));
-
+% 
 % figure(21); 
 % % traces of all cell's coupling terms
 % for ix = 1:10:(Nx+Nx_branch)
@@ -355,17 +356,17 @@ end
 
 %% ********** Plot of Excitability term for different v **********
 
-u_graph = [-0.5:0.0001:1.5];
-epsilon = 1/50;
-v_val = [0.1 0.2 0.3 0.4 0.5];
-a_val_graph = 0.8;
-b_val_graph = 0.05;
-for i = 1:5
-    v_val2 = v_val(i);
-    excite = (1/epsilon) * u_graph .* (1 - u_graph) .* (u_graph - ((v_val2 + b_val_graph)/a_val_graph));
-    plot(u,excite,'LineWidth',2); hold on; grid on;
-    axis([-1,2,-10,10]);
-end
+% u_graph = [-0.5:0.0001:1.5];
+% epsilon = 1/50;
+% v_val = [0.1 0.2 0.3 0.4 0.5];
+% a_val_graph = 0.8;
+% b_val_graph = 0.05;
+% for i = 1:5
+%     v_val2 = v_val(i);
+%     excite = (1/epsilon) * u_graph .* (1 - u_graph) .* (u_graph - ((v_val2 + b_val_graph)/a_val_graph));
+%     plot(u,excite,'LineWidth',2); hold on; grid on;
+%     axis([-1,2,-10,10]);
+% end
 
 
 

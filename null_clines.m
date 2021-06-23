@@ -14,15 +14,15 @@ figure(3); clf;
 subplot(2,1,1);
 
 v_plot = [-0.2,1.2];
-plot([0,0],v_plot,'b'); hold on;
+plot([0,0],v_plot,'b','LineWidth',2); hold on;
 grid;
-plot([1,1],v_plot,'b');
+plot([1,1],v_plot,'b','LineWidth',2);
 u_plot = (v_plot+b) / a;
-plot(u_plot,v_plot,'b');
+plot(u_plot,v_plot,'b','LineWidth',2);
 
 % Plotting v-nullcline
 u_plot = v_plot;
-plot(u_plot,v_plot,'r');
+plot(u_plot,v_plot,'r','LineWidth',2);
 
 xlabel('u');
 ylabel('v');
@@ -54,8 +54,8 @@ while (1)
     plot(u(1:it_mark:end),v(1:it_mark:end),'ko');
     % plot trajectors vs. time
     subplot(2,1,2);
-    plot((0:Nt)*Dt,u,'b'); hold on;
-    plot((0:Nt)*Dt,v,'r');
+    plot((0:Nt)*Dt,u,'b','LineWidth',2); hold on;
+    plot((0:Nt)*Dt,v,'r','LineWidth',2);
     axis([0,Nt*Dt,-0.2,1.2]);
     legend('u(t)','v(t)');
     xlabel('time');
