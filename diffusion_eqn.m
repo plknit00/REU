@@ -6,7 +6,7 @@ D = 1.0; % Diffusion coefficient
 Nx = 300; % Number of grid points in our simulation model
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
 Dt = 0.1*(Dx*Dx)/D; % Timestep size (choose to be numerically stable)
-Nt = 60000; % Number of timesteps to run
+Nt = 10000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 u = 0.01*rand(1,Nx);
@@ -343,15 +343,29 @@ end
 % xlabel('time'); ylabel('Coupling term value');
 % title(sprintf('Coupling term value of cell = %f vs. time',cell_num_val));
 
-figure(21); 
-% traces of all cell's coupling terms
-for ix = 1:10:(Nx+Nx_branch)
-%for ix = (Nx-10):(Nx+10)
-    plot((0:(Nt-1))*Dt,coupl(ix,:)-ix*0.25,'r'); hold on;
+% figure(21); 
+% % traces of all cell's coupling terms
+% for ix = 1:10:(Nx+Nx_branch)
+% %for ix = (Nx-10):(Nx+10)
+%     plot((0:(Nt-1))*Dt,coupl(ix,:)-ix*0.25,'r'); hold on;
+% end
+% hold off;
+% xlabel('Time');ylabel('x and coupling term');
+% title(sprintf('Coupling term value vs. time'));
+
+%% ********** Plot of Excitability term for different v **********
+
+u_graph = [-0.5:0.0001:1.5];
+epsilon = 1/50;
+v_val = [0.1 0.2 0.3 0.4 0.5];
+a_val_graph = 0.8;
+b_val_graph = 0.05;
+for i = 1:5
+    v_val2 = v_val(i);
+    excite = (1/epsilon) * u_graph .* (1 - u_graph) .* (u_graph - ((v_val2 + b_val_graph)/a_val_graph));
+    plot(u,excite,'LineWidth',2); hold on; grid on;
+    axis([-1,2,-10,10]);
 end
-hold off;
-xlabel('Time');ylabel('x and coupling term');
-title(sprintf('Coupling term value vs. time'));
 
 
 
