@@ -294,7 +294,7 @@ end
 % end
 % for it = 1001:100:Nt
 %      for ix = 1:length(u_phase)
-%          v_phase = a*(u_phase(ix)+(coupl(cell_num,it))/(50*u_phase(ix)*(1-u_phase(ix))))-b_phase2; 
+%          v_phase(ix) = a*(u_phase(ix)+(coupl(cell_num,it))/(50*u_phase(ix)*(1-u_phase(ix))))-b_phase2; 
 %      end
 %     plot([0,1],[0,1],'r','LineWidth',2); hold on;
 %     plot(u_phase,v_phase,'b','LineWidth',2); hold on;
