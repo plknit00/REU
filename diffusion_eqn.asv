@@ -286,18 +286,19 @@ end
 % figure(12);
 % cell_num = 299;
 % u_phase = 0:0.001:1;
-% v_phase = zeros(1,length(u_phase));
+% v_phase2 = zeros(1,length(u_phase));
+% b_phase2 = 0;
 % if cell_num <= Nx
-%     b_phase2 = b(cell_num);
+%     b_phase = b(cell_num);
 % else
-%     b_phase2 = b_branch;
+%     b_phase = b_branch;
 % end
 % for it = 1001:100:Nt
-%      for ix = 1:length(u_phase)
-%          v_phase = a*(u_phase(ix)+(coupl(cell_num,it))/(50*u_phase(ix)*(1-u_phase(ix))))-b_phase2; 
-%      end
+%     for ix = 1:length(u_phase)
+%         v_phase2 = a*(u_phase(ix)+(coupl(cell_num,it))/(50*u_phase(ix)*(1-u_phase(ix))))-b_phase2; 
+%     end
 %     plot([0,1],[0,1],'r','LineWidth',2); hold on;
-%     plot(u_phase,v_phase,'b','LineWidth',2); hold on;
+%     plot(u_phase,v_phase2,'b','LineWidth',2); hold on;
 %     plot(u_traces(cell_num,it),v_traces(cell_num,it),'mo'); hold on;
 %     plot(u_traces(cell_num,(it-1000:it)),v_traces(cell_num,(it-1000:it)),'m','LineWidth',2); hold off;
 %     axis([-0.1,1.1,-0.2,1.2]); grid on; xlabel('u'); ylabel('v');
@@ -306,58 +307,67 @@ end
 % end
 
 % % *************** Phase Plane Trajectory Barkely Model **********
-% epsilon = 0.02; % st 1/epsilon = 50
-% a = 0.8;
-% b = 0.05;
-% Dt = 1.e-4; % timestep size
-% Nt = 100000; % number of timesteps
-% it_mark = 300; % mark trajectories for every it_mark timesteps
-% figure(13); clf;
-% subplot(2,1,1);
-% v_plot = [-0.2,1.2];
-% plot([0,0],v_plot,'b','LineWidth',2); hold on;
-% grid;
-% plot([1,1],v_plot,'b','LineWidth',2);
-% u_plot = (v_plot+b) / a;
-% plot(u_plot,v_plot,'b','LineWidth',2);
-% u_plot = v_plot;
-% plot(u_plot,v_plot,'r','LineWidth',2);
-% xlabel('u');
-% ylabel('v');
-% axis([-0.2,1.2,-0.2,1.2]);
-% disp('Click on  a point in the graph to set initial conditions');
-% disp('Type Control-C to exit');
-% 
-% while (1)
-%     % read mouse location
-%     [u0,v0] = ginput(1);
-%     % Solve the Barkley equations (w/o diffusion term)
-%     % (u0,v0) = initial conditions
-%     u = nan(1,Nt+1);
-%     v = nan(1,Nt+1);
-%     u(1) = u0;
-%     v(1) = v0;
-%     for it = 1:Nt
-%         u_new = u(it) + Dt/epsilon*u(it)*(1-u(it))*(u(it)-(v(it)+b)/a);
-%         v_new = v(it) + Dt*(u(it)-v(it));
-%         u(it+1) = u_new;
-%         v(it+1) = v_new;
-%     end
-%     % mark initial conditions w/ * and plot trajectory
-%     subplot(2,1,1)
-%     plot(u0,v0,'k*');
-%     plot(u,v,'k');
-%     % mark trajectory at points that are equally spaced in time
-%     plot(u(1:it_mark:end),v(1:it_mark:end),'ko');
-%     % plot trajectors vs. time
-%     subplot(2,1,2);
-%     plot((0:Nt)*Dt,u,'b','LineWidth',2); hold on;
-%     plot((0:Nt)*Dt,v,'r','LineWidth',2);
-%     axis([0,Nt*Dt,-0.2,1.2]);
-%     legend('u(t)','v(t)');
-%     xlabel('time');
-%     hold off;
-% end
+% figure(13);
+epsilon = 0.02; % st 1/epsilon = 50
+a = 0.8;
+b = 0.05;
+
+Dt = 1.e-4; % timestep size
+Nt = 100000; % number of timesteps
+it_mark = 300; % mark trajectories for every it_mark timesteps
+
+% Plotting u-nullcline
+figure(3); clf;
+subplot(2,1,1);
+
+v_plot = [-0.2,1.2];
+plot([0,0],v_plot,'b','LineWidth',2); hold on;
+grid;
+plot([1,1],v_plot,'b','LineWidth',2);
+u_plot = (v_plot+b) / a;
+plot(u_plot,v_plot,'b','LineWidth',2);
+
+% Plotting v-nullcline
+u_plot = v_plot;
+plot(u_plot,v_plot,'r','LineWidth',2);
+
+xlabel('u');
+ylabel('v');
+axis([-0.2,1.2,-0.2,1.2]);
+disp('Click on  a point in the graph to set initial conditions');
+disp('Type Control-C to exit');
+
+while (1)
+    % read mouse location
+    [u0,v0] = ginput(1);
+    
+    % Solve the Barkley equations (w/o diffusion term)
+    % (u0,v0) = initial conditions
+    u = nan(1,Nt+1);
+    v = nan(1,Nt+1);
+    u(1) = u0;
+    v(1) = v0;
+    for it = 1:Nt
+        u_new = u(it) + Dt/epsilon*u(it)*(1-u(it))*(u(it)-(v(it)+b)/a);
+        v_new = v(it) + Dt*(u(it)-v(it));
+        u(it+1) = u_new;
+        v(it+1) = v_new;
+    end
+    % mark initial conditions w/ * and plot trajectory
+    subplot(2,1,1)
+    plot(u0,v0,'k*');
+    plot(u,v,'k');
+    % mark trajectory at points that are equally spaced in time
+    plot(u(1:it_mark:end),v(1:it_mark:end),'ko');
+    % plot trajectors vs. time
+    subplot(2,1,2);
+    plot((0:Nt)*Dt,u,'b','LineWidth',2); hold on;
+    plot((0:Nt)*Dt,v,'r','LineWidth',2);
+    axis([0,Nt*Dt,-0.2,1.2]);
+    legend('u(t)','v(t)');
+    xlabel('time');
+    hold off;
+end
 
 %% ************ Contour Plots // 3D movies **************
 
