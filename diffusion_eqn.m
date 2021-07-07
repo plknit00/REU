@@ -10,12 +10,12 @@ Nt = 10000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 u = 0.01*rand(1,Nx);
-cell_val = 0; % which cell are we evaluating for history plots
 
 % PARAMETERS and ARRAY ALLOCATION
 u_new = zeros(1,Nx);
 v_new = zeros(1,Nx);
-magnify = 50; % makes firing term large enough
+epsilon = 1/50;
+magnify = 1/epsilon; % makes firing term large enough
 a = 0.8;
 b_val = 0.05;
 v = zeros(1, Nx); 
@@ -24,13 +24,13 @@ for ix = 1:Nx
     % if we change this value to be smaller, we may not have enough mass to
     % generate a pulse and push it out of sinus node region
     if (ix<50) % if the cell is in the left region, composed of 49 cells
-        b(ix) = -0.125; % set the value of b in this cell to avoid neg number
+        b(ix) = -0.238; % set the value of b in this cell to avoid neg number
     else % right region
         b(ix) = b_val; % otherwise, set b in this cell to previous value 0.05
     end
 end
 
-N_branches = 10; % number of branches in fan-out used to model atrium
+N_branches = 9; % number of branches in fan-out used to model atrium
 Nx_branch = 300; % number of cells in each branch
 i_branch_plot = 1; % which branch to plot
 b_branch = 0.05; % b_value for branches
@@ -43,6 +43,10 @@ v_branch_new = zeros(N_branches, Nx_branch);
 % history plots 
 v_branch_point_hist = nan(1,Nt);
 u_branch_point_hist = nan(1,Nt);
+v_branch_point_hist2 = nan(1,Nt);
+u_branch_point_hist2 = nan(1,Nt);
+cell_val = 160;
+cell_val2 = Nx + 1;
 % for Brian hansen traces
 v_traces = nan(Nx_branch+Nx,Nt);
 u_traces = nan(Nx_branch+Nx,Nt);
@@ -117,31 +121,32 @@ for it = 1:Nt
     u_branch = u_branch_new;
     v_branch = v_branch_new;
     
-    cell_val = Nx - 1;
-    v_branch_point_hist(it) = v(cell_val)';
-    u_branch_point_hist(it) = u(cell_val)';
+    v_branch_point_hist(it) = v(cell_val-10)';
+    u_branch_point_hist(it) = u(cell_val-10)';
+    v_branch_point_hist2(it) = v_branch(1,10)';
+    u_branch_point_hist2(it) = u_branch(1,10)';
     
     v_traces(1:Nx,it) = v;
     v_traces((Nx+1):end,it) = v_branch(1,:)';
     u_traces(1:Nx,it) = u;
     u_traces((Nx+1):end,it) = u_branch(1,:)';
     
-    % Plot every so often:
-    if (mod(it,itplot)==0)
-        figure(1);
-        x_plot = [x, x_branch];
-        u_plot = [u, u_branch(i_branch_plot,:)];
-        v_plot = [v, v_branch(i_branch_plot,:)];
-        plot(x_plot,u_plot,'b','LineWidth',2); hold on;
-        plot(x_plot,v_plot,'r','LineWidth',2); hold off;
-        axis([x_plot(1),x_plot(end),0,1]); % define the plot axes
-        title(sprintf('u and v vs. x at time %f',it*Dt));
-        xlabel('x'); ylabel('u and v');
-        drawnow;
-        % % Writing each fram to the file
-        % currFrame = getframe(gcf);
-        % writeVideo(vidObj, currFrame);
-    end
+%     % Plot every so often:
+%     if (mod(it,itplot)==0)
+%         figure(1);
+%         x_plot = [x, x_branch];
+%         u_plot = [u, u_branch(i_branch_plot,:)];
+%         v_plot = [v, v_branch(i_branch_plot,:)];
+%         plot(x_plot,u_plot,'b','LineWidth',2); hold on;
+%         plot(x_plot,v_plot,'r','LineWidth',2); hold off;
+%         axis([x_plot(1),x_plot(end),0,1]); % define the plot axes
+%         title(sprintf('u and v vs. x at time %f',it*Dt));
+%         xlabel('x'); ylabel('u and v');
+%         drawnow;
+%         % % Writing each fram to the file
+%         % currFrame = getframe(gcf);
+%         % writeVideo(vidObj, currFrame);
+%     end
 end
 % close(vidObj);
 
@@ -156,7 +161,19 @@ end
 % hold off;
 % xlabel('Time');
 % legend('v', 'u');
-% 
+
+figure(2);
+plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_branch_point_hist,'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_branch_point_hist2,'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_branch_point_hist2,'k','LineWidth',2);
+str = sprintf('u & v at cell num 1 = %i and cell num 2 = %i',cell_val,cell_val2);
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',14);
+legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
+
 % figure(3);
 % plot((0:(Nt-1))*Dt,v_branch_point_hist,'r','LineWidth',2);
 % hold on;
@@ -177,16 +194,16 @@ end
 
 %% ********** Brain Hansen Stuff // Traces **********
 
-% figure(5); %Time histories of u(x,t) & v(x,t) vs. t, number of
-% for ix = 1:10:(Nx+Nx_branch)
-% %for ix = (Nx-10):(Nx+10)
-%     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
-%     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
-% end
-% hold off;
-% xlabel('Time');ylabel('x');
-% str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
-% title(str);
+figure(5); %Time histories of u(x,t) & v(x,t) vs. t, number of
+%for ix = 1:10:(Nx+Nx_branch)
+for ix = (Nx-25):(Nx+25)
+    plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.5,'b','LineWidth',2); hold on;
+    plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.5,'r','LineWidth',2); hold on;
+end
+hold off;
+xlabel('Time');ylabel('x');
+str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+title(str);
 % 
 % figure(6); % ****** Time histories of u(x,t) vs. t, number of *****
 % for ix = 1:10:(Nx+Nx_branch)
@@ -253,7 +270,7 @@ end
 % comet(u_traces(cell_num,:), v_traces(cell_num,:));
 % %plot(u_traces(cell_num,:), v_traces(cell_num,:),'c','LineWidth',2);
 
-% % *************** Multiple Cells *************
+% % % *************** Multiple Cells *************
 % figure(11);
 % cell_num  = 299;
 % cell_num2 = 300;
@@ -461,6 +478,18 @@ end
 % xlabel('Time');ylabel('x and coupling term');
 % title(sprintf('Coupling term value vs. time'));
 
+% figure(25); %Time histories of u(x,t) & v(x,t) & coupling vs. t, number of
+% for ix = 1:10:(Nx+Nx_branch)
+% %for ix = (Nx-10):(Nx+10)
+%     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
+%     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
+%     plot((0:(Nt-1))*Dt,coupl(ix,:)-ix*0.05,'g','LineWidth',2); hold on;
+% end
+% hold off;
+% xlabel('Time');ylabel('x');
+% str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+% title(str);
+
 %% ********** Plot of Excitability term for different v **********
 
 % u_graph = [-0.5:0.0001:1.5];
@@ -475,6 +504,27 @@ end
 %     axis([-1,2,-10,10]);
 % end
 
+%% ************ Comparing u(t) and u(x) *********************
+
+figure(26);
+time_value = 5000;
+plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
+plot((0:((Nx+Nx_branch)-1))*Dx,u_traces(:,time_value),'b','LineWidth',2);
+str = sprintf('u(t) & u(x) at time = %i and cell number = %i',time_value,cell_val);
+title(str);
+hold off;
+xlabel('Time or Space');
+legend('u(t)', 'u(x)');
+% 
+% figure(27);
+% time_value2 = 5000;
+% plot((0:(Nt-1))*Dt,v_branch_point_hist,'r','LineWidth',2); hold on;
+% plot((0:((Nx+Nx_branch)-1))*Dx,v_traces(:,time_value2),'b','LineWidth',2);
+% str = sprintf('v(t) & v(x) at time = %i and cell number = %i',time_value2,cell_val);
+% title(str);
+% hold off;
+% xlabel('Time or Space');
+% legend('v(t)', 'v(x)');
 
 
 

@@ -6,19 +6,23 @@
 Nx = 300; % Number of grid points in our simulation model
 D = ones(1,Nx); % Diffusion coefficient
 D_branch = 1.0;
-for ix = 50:170  % left region of exit pathway
-    D(ix) = 0.027;
-end
-for ix = 170:300  % right region of exit pathway
-    D(ix) = 0.85;
+for ix = 50:400  % small region in middle of exit pathway
+    if (ix>=123) && (ix <= 129)
+        D(ix) = 0.0213;
+%     elseif (ix<123) % right exit pathway
+%         D(ix) = 0.85;
+%     else % left exit pathway
+%         D(ix) = 0.801;
+    else % left exit pathway
+         D(ix) = 0.801;
+    end
 end
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
-Dt = 0.1*(Dx*Dx)/D(1); % Timestep size (choose to be numerically stable)
-Nt = 300000; % Number of timesteps to run
+Dt = 0.1*(Dx*Dx)/max(D); % Timestep size (choose to be numerically stable)
+Nt = 100000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 u = 0.01*rand(1,Nx);
-cell_val = 0; % which cell are we evaluating for history plots
 
 % PARAMETERS and ARRAY ALLOCATION
 u_new = zeros(1,Nx);
@@ -52,6 +56,16 @@ v_branch_new = zeros(N_branches, Nx_branch);
 % history plots 
 v_branch_point_hist = nan(1,Nt);
 u_branch_point_hist = nan(1,Nt);
+v_branch_point_hist2 = nan(1,Nt);
+u_branch_point_hist2 = nan(1,Nt);
+cell_val = 122; % which cell are we evaluating for history plots
+cell_val2 = 123;
+v_branch_point_hist3 = nan(1,Nt);
+u_branch_point_hist3 = nan(1,Nt);
+v_branch_point_hist4 = nan(1,Nt);
+u_branch_point_hist4 = nan(1,Nt);
+cell_val3 = Nx;
+cell_val4 = Nx + 1;
 % for Brian hansen traces
 v_traces = nan(Nx_branch+Nx,Nt);
 u_traces = nan(Nx_branch+Nx,Nt);
@@ -137,16 +151,23 @@ for it = 1:Nt
     u_branch = u_branch_new;
     v_branch = v_branch_new;
     
-    cell_val = Nx - 1;
-    v_branch_point_hist(it) = v(cell_val)';
-    u_branch_point_hist(it) = u(cell_val)';
+    v_branch_point_hist(it) = v(cell_val-3)';
+    u_branch_point_hist(it) = u(cell_val-3)';
+    v_branch_point_hist2(it) = v(cell_val2+3)';
+    u_branch_point_hist2(it) = u(cell_val2+3)';
+    cell_val3 = Nx - 10;
+    v_branch_point_hist3(it) = v(cell_val3)';
+    u_branch_point_hist3(it) = u(cell_val3)';
+    cell_val4 = 311;
+    v_branch_point_hist4(it) = v_branch(1,10)';
+    u_branch_point_hist4(it) = u_branch(1,10)';
     
     v_traces(1:Nx,it) = v;
     v_traces((Nx+1):end,it) = v_branch(1,:)';
     u_traces(1:Nx,it) = u;
     u_traces((Nx+1):end,it) = u_branch(1,:)';
     
-    % Plot every so often:
+%     % Plot every so often:
 %     if (mod(it,itplot)==0)
 %         figure(1);
 %         x_plot = [x, x_branch];
@@ -167,15 +188,33 @@ end
 
 %% ************ History plots **********************
 
-% figure(2);
-% plot((0:(Nt-1))*Dt,v_branch_point_hist,'r','LineWidth',2);
-% hold on;
-% plot((0:(Nt-1))*Dt,u_branch_point_hist,'b','LineWidth',2);
-% str = sprintf('u & v at cell num = %i, num branches = %i, b = %f',cell_val,N_branches,b(1));
-% title(str);
-% hold off;
-% xlabel('Time');
-% legend('v', 'u');
+figure(2);
+plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_branch_point_hist2,'g','LineWidth',2); hold on;
+%plot((0:(Nt-1))*Dt,v_branch_point_hist,'b','LineWidth',2); hold on;
+%plot((0:(Nt-1))*Dt,v_branch_point_hist2,'k','LineWidth',2);
+%legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
+legend('u cell 1', 'u cell 2');
+str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val,cell_val2);
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
+
+% Branch point
+figure(3);
+plot((0:(Nt-1))*Dt,u_branch_point_hist3,'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_branch_point_hist4,'g','LineWidth',2); hold on;
+%plot((0:(Nt-1))*Dt,v_branch_point_hist3,'b','LineWidth',2); hold on;
+%plot((0:(Nt-1))*Dt,v_branch_point_hist4,'k','LineWidth',2);
+%legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
+legend('u cell 1', 'u cell 2');
+str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val3,cell_val4);
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
+
 % 
 % figure(3);
 % plot((0:(Nt-1))*Dt,v_branch_point_hist,'r','LineWidth',2);
@@ -198,15 +237,15 @@ end
 %% ********** Brain Hansen Stuff // Traces **********
 
 figure(5); %Time histories of u(x,t) & v(x,t) vs. t, number of
-for ix = 1:10:(Nx+Nx_branch)
+for ix = 1:8:(Nx+Nx_branch)
 %for ix = (Nx-10):(Nx+10)
     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
 end
 hold off;
-xlabel('Time');ylabel('x');
+xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
 str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
-title(str);
+title(str,'FontSize',20);
 
 % figure(6); % ****** Time histories of u(x,t) vs. t, number of *****
 % for ix = 1:10:(Nx+Nx_branch)
@@ -228,5 +267,43 @@ title(str);
 % str = sprintf('v for number of branches = %i, b = %f',N_branches,b(1));
 % title(str);
 
+%% ***************** Velocity graphs *************
+
+slope = zeros(1,Nx+Nx_branch-2);
+for i = 2:(Nx + Nx_branch - 1)
+    lower_bound = 0.5;
+    cell1 = i - 1;
+    cell2 = i;
+    cell3 = i + 1;
+    first_found1 = 0;
+    first_found2 = 0;
+    first_found3 = 0;
+    time1 = 0;
+    time2 = 0;
+    time3 = 0;
+    for it = 1:Nt
+        if (u_traces(cell1,it) > lower_bound) && (first_found1 == 0)
+            time1 = it;
+            first_found1 = 1;
+        end
+        if (u_traces(cell2,it) > lower_bound) && (first_found2 == 0)
+            time2 = it;
+            first_found2 = 1;
+        end
+        if (u_traces(cell3,it) > lower_bound) && (first_found3 == 0)
+            time3 = it;
+            first_found3 = 1;
+        end
+    end
+    slope(i) = (1/(time2-time1) + 1/(time3-time2)) / 2;
+end
+
+figure(8);
+plot((0:(Nx+Nx_branch-2))*Dx,slope(:),'r','LineWidth',2);
+str = sprintf('Velocity of Action Potential');
+title(str);
+hold off;
+xlabel('Position'); 
+set(gca,'FontSize',16);
 
 
