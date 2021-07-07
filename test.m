@@ -13,7 +13,7 @@ for ix = 50:400  % small region in middle of exit pathway
 %         D(ix) = 0.85;
 %     else % left exit pathway
 %         D(ix) = 0.801;
-    else % left exit pathway
+    else % rest of exit pathway
          D(ix) = 0.801;
     end
 end
@@ -188,32 +188,32 @@ end
 
 %% ************ History plots **********************
 
-figure(2);
-plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,u_branch_point_hist2,'g','LineWidth',2); hold on;
-%plot((0:(Nt-1))*Dt,v_branch_point_hist,'b','LineWidth',2); hold on;
-%plot((0:(Nt-1))*Dt,v_branch_point_hist2,'k','LineWidth',2);
-%legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
-legend('u cell 1', 'u cell 2');
-str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val,cell_val2);
-title(str);
-hold off;
-xlabel('Time'); 
-set(gca,'FontSize',16);
+% figure(2);
+% plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,u_branch_point_hist2,'g','LineWidth',2); hold on;
+% %plot((0:(Nt-1))*Dt,v_branch_point_hist,'b','LineWidth',2); hold on;
+% %plot((0:(Nt-1))*Dt,v_branch_point_hist2,'k','LineWidth',2);
+% %legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
+% legend('u cell 1', 'u cell 2');
+% str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val,cell_val2);
+% title(str);
+% hold off;
+% xlabel('Time'); 
+% set(gca,'FontSize',16);
 
-% Branch point
-figure(3);
-plot((0:(Nt-1))*Dt,u_branch_point_hist3,'r','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,u_branch_point_hist4,'g','LineWidth',2); hold on;
-%plot((0:(Nt-1))*Dt,v_branch_point_hist3,'b','LineWidth',2); hold on;
-%plot((0:(Nt-1))*Dt,v_branch_point_hist4,'k','LineWidth',2);
-%legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
-legend('u cell 1', 'u cell 2');
-str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val3,cell_val4);
-title(str);
-hold off;
-xlabel('Time'); 
-set(gca,'FontSize',16);
+% % Branch point
+% figure(3);
+% plot((0:(Nt-1))*Dt,u_branch_point_hist3,'r','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,u_branch_point_hist4,'g','LineWidth',2); hold on;
+% %plot((0:(Nt-1))*Dt,v_branch_point_hist3,'b','LineWidth',2); hold on;
+% %plot((0:(Nt-1))*Dt,v_branch_point_hist4,'k','LineWidth',2);
+% %legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
+% legend('u cell 1', 'u cell 2');
+% str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val3,cell_val4);
+% title(str);
+% hold off;
+% xlabel('Time'); 
+% set(gca,'FontSize',16);
 
 % 
 % figure(3);
@@ -269,41 +269,91 @@ title(str,'FontSize',20);
 
 %% ***************** Velocity graphs *************
 
-slope = zeros(1,Nx+Nx_branch-2);
-for i = 2:(Nx + Nx_branch - 1)
+
+% use linear interpolation
+time_arr = zeros(1,Nx+Nx_branch-2);
+velocity = zeros(1,Nx+Nx_branch-2);
+refract = zeros(1,Nx+Nx_branch-2);
+time_arr2 = zeros(1,Nx+Nx_branch-2);
+velocity2 = zeros(1,Nx+Nx_branch-2);
+time_arr3 = zeros(1,Nx+Nx_branch-2);
+velocity3 = zeros(1,Nx+Nx_branch-2);
+time_arr4 = zeros(1,Nx+Nx_branch-2);
+velocity4 = zeros(1,Nx+Nx_branch-2);
+% exclude sinus node since it doesn't carry information
+for ix = 51:(Nx + Nx_branch - 2)
     lower_bound = 0.5;
-    cell1 = i - 1;
-    cell2 = i;
-    cell3 = i + 1;
-    first_found1 = 0;
-    first_found2 = 0;
-    first_found3 = 0;
-    time1 = 0;
-    time2 = 0;
-    time3 = 0;
+    cell1 = ix;
+    t_right = 0;
+    t_left = 0;
+    % plot overlapping stuff
     for it = 1:Nt
-        if (u_traces(cell1,it) > lower_bound) && (first_found1 == 0)
-            time1 = it;
-            first_found1 = 1;
+        if (u_traces(cell1,it) > lower_bound)
+            t_right = it;
+            t_left = it - 1;
+            break;
         end
-        if (u_traces(cell2,it) > lower_bound) && (first_found2 == 0)
-            time2 = it;
-            first_found2 = 1;
-        end
-        if (u_traces(cell3,it) > lower_bound) && (first_found3 == 0)
-            time3 = it;
-            first_found3 = 1;
+        %refractoriness at time of u wave arrival
+        % probably in btw 2 times so linearly interpolate
+    end
+    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+    alpha = big_term / (1 + big_term);
+    time_arr(ix) = t_left + alpha;
+    % should be velocity (ix + 1/2) but we can only use integer indicies
+    % velcoity is change in dist ( = 1) / change in time 
+    velocity(ix) = abs(1/(time_arr(ix) - time_arr(ix-1)));
+    for it = 27000:Nt
+        if (u_traces(cell1,it) > lower_bound)
+            t_right = it;
+            t_left = it - 1;
+            break;
         end
     end
-    slope(i) = (1/(time2-time1) + 1/(time3-time2)) / 2;
+    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+    alpha = big_term / (1 + big_term);
+    time_arr2(ix) = t_left + alpha;
+    velocity2(ix) = abs(1/(time_arr2(ix) - time_arr2(ix-1)));
+    for it = 53000:Nt
+        if (u_traces(cell1,it) > lower_bound)
+            t_right = it;
+            t_left = it - 1;
+            break;
+        end
+    end
+    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+    alpha = big_term / (1 + big_term);
+    time_arr3(ix) = t_left + alpha;
+    velocity3(ix) = abs(1/(time_arr3(ix) - time_arr3(ix-1)));
+    for it = 82000:Nt
+        if (u_traces(cell1,it) > lower_bound)
+            t_right = it;
+            t_left = it - 1;
+            break;
+        end
+    end
+    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+    alpha = big_term / (1 + big_term);
+    time_arr4(ix) = t_left + alpha;
+    velocity4(ix) = abs(1/(time_arr4(ix) - time_arr4(ix-1)));
 end
 
 figure(8);
-plot((0:(Nx+Nx_branch-2))*Dx,slope(:),'r','LineWidth',2);
+plot((0:(Nx+Nx_branch-3))*Dx,velocity(:),'r','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity2(:),'b','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity3(:),'k','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity4(:),'g','LineWidth',2);
 str = sprintf('Velocity of Action Potential');
 title(str);
 hold off;
 xlabel('Position'); 
+legend('wave 1', 'wave 2', 'wave 3', 'wave 4');
 set(gca,'FontSize',16);
 
+% figure(9);
+% plot(refract(:),velocity(:),'r*','LineWidth',2);
+% str = sprintf('Velocity of Action Potential vs. Refractoriness at the same time');
+% title(str);
+% hold off;
+% xlabel('Refractoriness'); 
+% set(gca,'FontSize',16);
 
