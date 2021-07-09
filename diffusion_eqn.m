@@ -6,7 +6,7 @@ D = 1.0; % Diffusion coefficient
 Nx = 300; % Number of grid points in our simulation model
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
 Dt = 0.1*(Dx*Dx)/D; % Timestep size (choose to be numerically stable)
-Nt = 10000; % Number of timesteps to run
+Nt = 35000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 u = 0.01*rand(1,Nx);
@@ -45,8 +45,6 @@ v_branch_point_hist = nan(1,Nt);
 u_branch_point_hist = nan(1,Nt);
 v_branch_point_hist2 = nan(1,Nt);
 u_branch_point_hist2 = nan(1,Nt);
-cell_val = 160;
-cell_val2 = Nx + 1;
 % for Brian hansen traces
 v_traces = nan(Nx_branch+Nx,Nt);
 u_traces = nan(Nx_branch+Nx,Nt);
@@ -121,10 +119,12 @@ for it = 1:Nt
     u_branch = u_branch_new;
     v_branch = v_branch_new;
     
-    v_branch_point_hist(it) = v(cell_val-10)';
-    u_branch_point_hist(it) = u(cell_val-10)';
-    v_branch_point_hist2(it) = v_branch(1,10)';
-    u_branch_point_hist2(it) = u_branch(1,10)';
+    cell_val = 290;
+    cell_val2 = 311;
+    v_branch_point_hist(it) = v(cell_val)';
+    u_branch_point_hist(it) = u(cell_val)';
+    v_branch_point_hist2(it) = v_branch(1,cell_val2-300)';
+    u_branch_point_hist2(it) = u_branch(1,cell_val2-300)';
     
     v_traces(1:Nx,it) = v;
     v_traces((Nx+1):end,it) = v_branch(1,:)';
@@ -171,7 +171,7 @@ str = sprintf('u & v at cell num 1 = %i and cell num 2 = %i',cell_val,cell_val2)
 title(str);
 hold off;
 xlabel('Time'); 
-set(gca,'FontSize',14);
+set(gca,'FontSize',16);
 legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
 
 % figure(3);
@@ -506,15 +506,15 @@ title(str);
 
 %% ************ Comparing u(t) and u(x) *********************
 
-figure(26);
-time_value = 5000;
-plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
-plot((0:((Nx+Nx_branch)-1))*Dx,u_traces(:,time_value),'b','LineWidth',2);
-str = sprintf('u(t) & u(x) at time = %i and cell number = %i',time_value,cell_val);
-title(str);
-hold off;
-xlabel('Time or Space');
-legend('u(t)', 'u(x)');
+% figure(26);
+% time_value = 5000;
+% plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
+% plot((0:((Nx+Nx_branch)-1))*Dx,u_traces(:,time_value),'b','LineWidth',2);
+% str = sprintf('u(t) & u(x) at time = %i and cell number = %i',time_value,cell_val);
+% title(str);
+% hold off;
+% xlabel('Time or Space');
+% legend('u(t)', 'u(x)');
 % 
 % figure(27);
 % time_value2 = 5000;

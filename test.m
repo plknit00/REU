@@ -7,14 +7,14 @@ Nx = 300; % Number of grid points in our simulation model
 D = ones(1,Nx); % Diffusion coefficient
 D_branch = 1.0;
 for ix = 50:400  % small region in middle of exit pathway
-    if (ix>=123) && (ix <= 129)
-        D(ix) = 0.0213;
+    if (ix>=171) && (ix <= 175)
+        D(ix) = 0.025;
 %     elseif (ix<123) % right exit pathway
 %         D(ix) = 0.85;
 %     else % left exit pathway
 %         D(ix) = 0.801;
     else % rest of exit pathway
-         D(ix) = 0.801;
+         D(ix) = 0.806;
     end
 end
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
@@ -246,6 +246,7 @@ hold off;
 xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
 str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
 title(str,'FontSize',20);
+set(gca,'FontSize',16);
 
 % figure(6); % ****** Time histories of u(x,t) vs. t, number of *****
 % for ix = 1:10:(Nx+Nx_branch)
@@ -280,13 +281,15 @@ time_arr3 = zeros(1,Nx+Nx_branch-2);
 velocity3 = zeros(1,Nx+Nx_branch-2);
 time_arr4 = zeros(1,Nx+Nx_branch-2);
 velocity4 = zeros(1,Nx+Nx_branch-2);
+time_arr5 = zeros(1,Nx+Nx_branch-2);
+velocity5 = zeros(1,Nx+Nx_branch-2);
 % exclude sinus node since it doesn't carry information
 for ix = 51:(Nx + Nx_branch - 2)
     lower_bound = 0.5;
     cell1 = ix;
     t_right = 0;
     t_left = 0;
-    % plot overlapping stuff
+    
     for it = 1:Nt
         if (u_traces(cell1,it) > lower_bound)
             t_right = it;
@@ -302,51 +305,76 @@ for ix = 51:(Nx + Nx_branch - 2)
     % should be velocity (ix + 1/2) but we can only use integer indicies
     % velcoity is change in dist ( = 1) / change in time 
     velocity(ix) = abs(1/(time_arr(ix) - time_arr(ix-1)));
-    for it = 27000:Nt
-        if (u_traces(cell1,it) > lower_bound)
-            t_right = it;
-            t_left = it - 1;
-            break;
+    
+    if (ix < Nx)
+        for it = 7000:Nt
+            if (u_traces(cell1,it) > lower_bound)
+                t_right = it;
+                t_left = it - 1;
+                break;
+            end
         end
+        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+        alpha = big_term / (1 + big_term);
+        time_arr2(ix) = t_left + alpha;
+        velocity2(ix) = abs(1/(time_arr2(ix) - time_arr2(ix-1)));
     end
-    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-    alpha = big_term / (1 + big_term);
-    time_arr2(ix) = t_left + alpha;
-    velocity2(ix) = abs(1/(time_arr2(ix) - time_arr2(ix-1)));
-    for it = 53000:Nt
-        if (u_traces(cell1,it) > lower_bound)
-            t_right = it;
-            t_left = it - 1;
-            break;
+    
+    if (ix < Nx)
+        for it = 14000:Nt
+            if (u_traces(cell1,it) > lower_bound)
+                t_right = it;
+                t_left = it - 1;
+                break;
+            end
         end
+        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+        alpha = big_term / (1 + big_term);
+        time_arr3(ix) = t_left + alpha;
+        velocity3(ix) = abs(1/(time_arr3(ix) - time_arr3(ix-1)));
     end
-    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-    alpha = big_term / (1 + big_term);
-    time_arr3(ix) = t_left + alpha;
-    velocity3(ix) = abs(1/(time_arr3(ix) - time_arr3(ix-1)));
-    for it = 82000:Nt
-        if (u_traces(cell1,it) > lower_bound)
-            t_right = it;
-            t_left = it - 1;
-            break;
+    
+    if (ix < Nx)
+        for it = 21500:Nt
+            if (u_traces(cell1,it) > lower_bound)
+                t_right = it;
+                t_left = it - 1;
+                break;
+            end
         end
+        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+        alpha = big_term / (1 + big_term);
+        time_arr4(ix) = t_left + alpha;
+        velocity4(ix) = abs(1/(time_arr4(ix) - time_arr4(ix-1)));
     end
-    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-    alpha = big_term / (1 + big_term);
-    time_arr4(ix) = t_left + alpha;
-    velocity4(ix) = abs(1/(time_arr4(ix) - time_arr4(ix-1)));
+    
+    if (ix < 171)
+        for it = 27500:Nt
+            if (u_traces(cell1,it) > lower_bound)
+                t_right = it;
+                t_left = it - 1;
+                break;
+            end
+        end
+        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
+        alpha = big_term / (1 + big_term);
+        time_arr5(ix) = t_left + alpha;
+        velocity5(ix) = abs(1/(time_arr5(ix) - time_arr5(ix-1)));
+    end
 end
 
 figure(8);
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(:),'r','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity2(:),'b','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity3(:),'k','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity4(:),'g','LineWidth',2);
+legend('wave 1');
+% plot((0:(Nx+Nx_branch-3))*Dx,velocity2(:),'b','LineWidth',2); hold on;
+% plot((0:(Nx+Nx_branch-3))*Dx,velocity3(:),'k','LineWidth',2); hold on;
+% plot((0:(Nx+Nx_branch-3))*Dx,velocity4(:),'g','LineWidth',2); hold on;
+% plot((0:(Nx+Nx_branch-3))*Dx,velocity5(:),'c','LineWidth',2);
+% legend('wave 1', 'wave 2', 'wave 3', 'wave 4', 'wave 5');
 str = sprintf('Velocity of Action Potential');
 title(str);
 hold off;
-xlabel('Position'); 
-legend('wave 1', 'wave 2', 'wave 3', 'wave 4');
+xlabel('Position'); ylabel('Velocity'); 
 set(gca,'FontSize',16);
 
 % figure(9);
