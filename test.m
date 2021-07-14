@@ -56,18 +56,9 @@ v_branch = zeros(N_branches, Nx_branch);
 u_branch_new = zeros(N_branches, Nx_branch);
 v_branch_new = zeros(N_branches, Nx_branch);
 % history plots 
-v_branch_point_hist = nan(1,Nt);
-u_branch_point_hist = nan(1,Nt);
-v_branch_point_hist2 = nan(1,Nt);
-u_branch_point_hist2 = nan(1,Nt);
-cell_val = 122; % which cell are we evaluating for history plots
-cell_val2 = 123;
-v_branch_point_hist3 = nan(1,Nt);
-u_branch_point_hist3 = nan(1,Nt);
-v_branch_point_hist4 = nan(1,Nt);
-u_branch_point_hist4 = nan(1,Nt);
-cell_val3 = Nx;
-cell_val4 = Nx + 1;
+cell_val = [170 171 175 176 300 301];
+v_hist = nan(length(cell_val),Nt);
+u_hist = nan(length(cell_val),Nt);
 % for Brian hansen traces
 v_traces = nan(Nx_branch+Nx,Nt);
 u_traces = nan(Nx_branch+Nx,Nt);
@@ -153,16 +144,18 @@ for it = 1:Nt
     u_branch = u_branch_new;
     v_branch = v_branch_new;
     
-    v_branch_point_hist(it) = v(cell_val-3)';
-    u_branch_point_hist(it) = u(cell_val-3)';
-    v_branch_point_hist2(it) = v(cell_val2+3)';
-    u_branch_point_hist2(it) = u(cell_val2+3)';
-    cell_val3 = Nx - 10;
-    v_branch_point_hist3(it) = v(cell_val3)';
-    u_branch_point_hist3(it) = u(cell_val3)';
-    cell_val4 = 311;
-    v_branch_point_hist4(it) = v_branch(1,10)';
-    u_branch_point_hist4(it) = u_branch(1,10)';
+    v_hist(1,it) = v(cell_val(1))';
+    u_hist(1,it) = u(cell_val(1))';
+    v_hist(2,it) = v(cell_val(2))';
+    u_hist(2,it) = u(cell_val(2))';
+    v_hist(3,it) = v(cell_val(3))';
+    u_hist(3,it) = u(cell_val(3))';
+    v_hist(4,it) = v(cell_val(4))';
+    u_hist(4,it) = u(cell_val(4))';
+    v_hist(5,it) = v(cell_val(5))';
+    u_hist(5,it) = u(cell_val(5))';
+    v_hist(6,it) = v_branch(cell_val(6))';
+    u_hist(6,it) = u_branch(cell_val(6))';
     
     v_traces(1:Nx,it) = v;
     v_traces((Nx+1):end,it) = v_branch(1,:)';
@@ -190,46 +183,55 @@ end
 
 %% ************ History plots **********************
 
-% figure(2);
-% plot((0:(Nt-1))*Dt,u_branch_point_hist,'r','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,u_branch_point_hist2,'g','LineWidth',2); hold on;
-% %plot((0:(Nt-1))*Dt,v_branch_point_hist,'b','LineWidth',2); hold on;
-% %plot((0:(Nt-1))*Dt,v_branch_point_hist2,'k','LineWidth',2);
-% %legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
-% legend('u cell 1', 'u cell 2');
-% str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val,cell_val2);
-% title(str);
-% hold off;
-% xlabel('Time'); 
-% set(gca,'FontSize',16);
+figure(2); % Beginning of interesting section, D goes from almost 1 back to very small
+plot((0:(Nt-1))*Dt,u_hist(1,:),'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(1,:),'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_hist(2,:),'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(2,:),'k','LineWidth',2);
+legend('u cell 170', 'v cell 170', 'u cell 171', 'v cell 171');
+str = sprintf('u & v at cell %i and cell %i',cell_val(1),cell_val(2));
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
 
-% % Branch point
-% figure(3);
-% plot((0:(Nt-1))*Dt,u_branch_point_hist3,'r','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,u_branch_point_hist4,'g','LineWidth',2); hold on;
-% %plot((0:(Nt-1))*Dt,v_branch_point_hist3,'b','LineWidth',2); hold on;
-% %plot((0:(Nt-1))*Dt,v_branch_point_hist4,'k','LineWidth',2);
-% %legend('u cell 1', 'v cell 1', 'u cell 2', 'v cell 2');
-% legend('u cell 1', 'u cell 2');
-% str = sprintf('u & v at cell 1 = %i and cell 2 = %i',cell_val3,cell_val4);
-% title(str);
-% hold off;
-% xlabel('Time'); 
-% set(gca,'FontSize',16);
+figure(3); % End of interesting section, D goes from very small back to almost 1
+plot((0:(Nt-1))*Dt,u_hist(3,:),'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(3,:),'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_hist(4,:),'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(4,:),'k','LineWidth',2);
+legend('u cell 175', 'v cell 175', 'u cell 176', 'v cell 176');
+str = sprintf('u & v at cell %i and cell %i',cell_val(3),cell_val(4));
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
+
+figure(4); % Branch Point
+plot((0:(Nt-1))*Dt,u_hist(5,:),'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(5,:),'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_hist(6,:),'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(6,:),'k','LineWidth',2);
+legend('u cell 300', 'v cell 300', 'u cell 301', 'v cell 301');
+str = sprintf('u & v at cell %i and cell %i',cell_val(5),cell_val(6));
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
 
 %% ********** Brain Hansen Stuff // Traces **********
 
-figure(4); %Time histories of u(x,t) & v(x,t) vs. t, number of
-for ix = 1:10:(Nx+Nx_branch)
-%for ix = (Nx-10):(Nx+10)
-    plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
-    plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
-end
-hold off;
-xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
-str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
-title(str,'FontSize',20);
-set(gca,'FontSize',16);
+% figure(6); %Time histories of u(x,t) & v(x,t) vs. t, number of
+% for ix = 1:10:(Nx+Nx_branch)
+% %for ix = (Nx-10):(Nx+10)
+%     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
+%     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
+% end
+% hold off;
+% xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
+% str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+% title(str,'FontSize',20);
+% set(gca,'FontSize',16);
 
 %% ***************** Velocity graphs *************
 
@@ -238,8 +240,8 @@ num_wave = 4;
 time_arr = zeros(num_wave,Nx+Nx_branch-2);
 velocity = zeros(num_wave,Nx+Nx_branch-2);
 refract = zeros(num_wave,Nx+Nx_branch-2);
-ix_range = 51:Nx+Nx_branch-2; % includes all but sinus node
-% ix_range = [70:155,205:290,350:570]; % only includes cells where D is constant for a while
+%ix_range = 51:Nx+Nx_branch-2; % includes all but sinus node
+ix_range = [70:155,205:290,350:570]; % only includes cells where D is constant for a while
 ix_length = length(ix_range);
 for ix = ix_range
     lower_bound = 0.1;
@@ -286,7 +288,7 @@ for ix = ix_range
             end
         end
 
-        for it = 57500:60000 % wave 3
+        for it = 50500:60000 % wave 3
             if (u_traces(ix,it) > lower_bound)
                 it_right(3) = it;
                 it_left(3) = it - 1;
@@ -296,13 +298,10 @@ for ix = ix_range
     end
     
     for k = 1:num_wave
-        if (it_left(k) > 0) && (it_right(k) > 0)
+        if (it_left(k) > 0) && (it_right(k) > 0) % only continue if variables are valid
             if (u_traces(ix,it_left(k)) <= lower_bound) && (u_traces(ix,it_right(k)) >= lower_bound)
                 big_term = (lower_bound - u_traces(ix,it_left(k))) / (u_traces(ix,it_right(k)) - lower_bound);
                 alpha = big_term / (1 + big_term);
-                if (alpha > 1) || (alpha < 0)
-                    count = count +1;
-                end
                 time_arr(k,ix) = it_left(k) + alpha;
                 beta = 1 - alpha;
                 v_left = v_traces(ix,it_left(k));
@@ -316,7 +315,7 @@ for ix = ix_range
     end
 end
 
-figure(5); % Gradient Plot of One Wave (Vel vs. Pos)
+figure(7); % Gradient Plot of One Wave (Vel vs. Pos)
 for k = 1:ix_length
     plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -325,16 +324,10 @@ end
 str = sprintf('Velocity of Action Potential');
 title(str);
 hold off;
-xlabel('Position'); ylabel('Velocity'); 
+xlabel('Position'); ylabel('Velocity'); legend('wave 6');
 set(gca,'FontSize',16);
 
-figure (6); % Comparison Plot of Multiple Waves (Vel vs. Pos)
-% Broken code below
-% for j = 1:num_wave
-%     for k = 1:ix_length
-%         plot(ix_range(k)*Dx,velocity(j,ix_range(k)),'r','LineWidth',2); hold on;
-%     end
-% end
+figure (8); % Comparison Plot of Multiple Waves (Vel vs. Pos)
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(1,:),'r*','LineWidth',2); hold on;
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(2,:),'b*','LineWidth',2); hold on;
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(3,:),'k*','LineWidth',2); hold on;
@@ -346,7 +339,7 @@ hold off;
 xlabel('Position'); ylabel('Velocity'); 
 set(gca,'FontSize',16);
 
-figure(7); % Gradient Plot of One Wave (Vel vs. Ref)
+figure(9); % Gradient Plot of One Wave (Vel vs. Ref)
 for k = 1:ix_length
     plot(refract(1,ix_range(k)),velocity(1,ix_range(k)),'o','LineWidth',2,...
         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -358,7 +351,7 @@ hold off;
 xlabel('Refractoriness'); ylabel('Velocity'); 
 set(gca,'FontSize',16);
 
-figure(8); % Gradient plot of one wave (Ref vs. Pos)
+figure(10); % Gradient plot of one wave (Ref vs. Pos)
 for k = 1:ix_length
     plot(ix_range(k)*Dx,refract(1,ix_range(k)),'o','LineWidth',2,...
         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -370,13 +363,7 @@ hold off;
 xlabel('Position'); ylabel('Refractoriness'); 
 set(gca,'FontSize',16);
 
-figure(9); % Comparison Plot of Multiple Waves (Ref vs. Pos)
-% Broken code below
-% for k = 1:ix_length
-%     for j = 1:1
-%         plot(ix_range(k)*Dx,refract(j,ix_range(k)),'r','LineWidth',2); hold on;
-%     end
-% end
+figure(11); % Comparison Plot of Multiple Waves (Ref vs. Pos)
 plot((0:(Nx+Nx_branch-3))*Dx,refract(1,:),'r*','LineWidth',2); hold on;
 plot((0:(Nx+Nx_branch-3))*Dx,refract(2,:),'b*','LineWidth',2); hold on;
 plot((0:(Nx+Nx_branch-3))*Dx,refract(3,:),'k*','LineWidth',2); hold on;
