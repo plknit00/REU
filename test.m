@@ -217,28 +217,9 @@ end
 % xlabel('Time'); 
 % set(gca,'FontSize',16);
 
-% 
-% figure(3);
-% plot((0:(Nt-1))*Dt,v_branch_point_hist,'r','LineWidth',2);
-% hold on;
-% plot((0:(Nt-1))*Dt-6.7448,v_branch_point_hist,'g','LineWidth',2);
-% xlabel('Time');ylabel('v');
-% str = sprintf('v at cell num = %i, num branches = %i, b = %f',cell_val,N_branches,b(1));
-% title(str);
-% hold off;
-% 
-% figure(4);
-% plot((0:(Nt-1))*Dt,u_branch_point_hist,'b','LineWidth',2);
-% hold on;
-% plot((0:(Nt-1))*Dt-6.7448,u_branch_point_hist,'g','LineWidth',2);
-% xlabel('Time');ylabel('u at branch point');
-% str = sprintf('u at cell num = %i, num branches = %i, b = %f',cell_val,N_branches,b(1));
-% title(str);
-% hold off;
-
 %% ********** Brain Hansen Stuff // Traces **********
 
-figure(5); %Time histories of u(x,t) & v(x,t) vs. t, number of
+figure(4); %Time histories of u(x,t) & v(x,t) vs. t, number of
 for ix = 1:10:(Nx+Nx_branch)
 %for ix = (Nx-10):(Nx+10)
     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
@@ -250,26 +231,6 @@ str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
 title(str,'FontSize',20);
 set(gca,'FontSize',16);
 
-% figure(6); % ****** Time histories of u(x,t) vs. t, number of *****
-% for ix = 1:10:(Nx+Nx_branch)
-% % for ix = (Nx-20):(Nx+20)
-%     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
-% end
-% hold off;
-% xlabel('Time');ylabel('x');
-% str = sprintf('u for number of branches = %i, b = %f',N_branches,b(1));
-% title(str);
-% 
-% figure(7); % ****** Time histories of v(x,t) vs. t, number of *****
-% for ix = 1:10:(Nx+Nx_branch)
-% % for ix = (Nx-20):(Nx+20)
-%     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
-% end
-% hold off;
-% xlabel('Time');ylabel('x');
-% str = sprintf('v for number of branches = %i, b = %f',N_branches,b(1));
-% title(str);
-
 %% ***************** Velocity graphs *************
 
 % use linear interpolation
@@ -277,10 +238,9 @@ num_wave = 4;
 time_arr = zeros(num_wave,Nx+Nx_branch-2);
 velocity = zeros(num_wave,Nx+Nx_branch-2);
 refract = zeros(num_wave,Nx+Nx_branch-2);
-ix_range = 51:Nx+Nx_branch-2;
-%ix_range = [60:160,197:290,335:580];
+ix_range = 51:Nx+Nx_branch-2; % includes all but sinus node
+% ix_range = [70:155,205:290,350:570]; % only includes cells where D is constant for a while
 ix_length = length(ix_range);
-count = 0;
 for ix = ix_range
     lower_bound = 0.1;
     it_right = zeros(1,num_wave);
@@ -355,23 +315,30 @@ for ix = ix_range
         end
     end
 end
-bad = count
-figure(8);
-% for k = 1:ix_length
-%     plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
-%         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
-%         'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
-% end
+
+figure(5); % Gradient Plot of One Wave (Vel vs. Pos)
+for k = 1:ix_length
+    plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
+        'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
+        'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
+end
+str = sprintf('Velocity of Action Potential');
+title(str);
+hold off;
+xlabel('Position'); ylabel('Velocity'); 
+set(gca,'FontSize',16);
+
+figure (6); % Comparison Plot of Multiple Waves (Vel vs. Pos)
 % Broken code below
-% for k = 1:ix_length
-%     for j = 1:num_wave
-%         plot(ix_range(k)*Dx,velocity(j,:),'r','LineWidth',2); hold on;
+% for j = 1:num_wave
+%     for k = 1:ix_length
+%         plot(ix_range(k)*Dx,velocity(j,ix_range(k)),'r','LineWidth',2); hold on;
 %     end
 % end
-plot((0:(Nx+Nx_branch-3))*Dx,velocity(1,:),'r','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity(2,:),'b','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity(3,:),'k','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity(4,:),'g','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity(1,:),'r*','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity(2,:),'b*','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity(3,:),'k*','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,velocity(4,:),'g*','LineWidth',2); hold on;
 legend('wave 6', 'wave 7', 'wave 8', 'wave 9');
 str = sprintf('Velocity of Action Potential');
 title(str);
@@ -379,7 +346,7 @@ hold off;
 xlabel('Position'); ylabel('Velocity'); 
 set(gca,'FontSize',16);
 
-figure(9);
+figure(7); % Gradient Plot of One Wave (Vel vs. Ref)
 for k = 1:ix_length
     plot(refract(1,ix_range(k)),velocity(1,ix_range(k)),'o','LineWidth',2,...
         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -391,12 +358,19 @@ hold off;
 xlabel('Refractoriness'); ylabel('Velocity'); 
 set(gca,'FontSize',16);
 
-figure(10);
-% for k = 1:ix_length
-%     plot(ix_range(k)*Dx,refract(1,ix_range(k)),'o','LineWidth',2,...
-%         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
-%         'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
-% end
+figure(8); % Gradient plot of one wave (Ref vs. Pos)
+for k = 1:ix_length
+    plot(ix_range(k)*Dx,refract(1,ix_range(k)),'o','LineWidth',2,...
+        'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
+        'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
+end
+str = sprintf('Refractoriness vs. Position');
+title(str);
+hold off;
+xlabel('Position'); ylabel('Refractoriness'); 
+set(gca,'FontSize',16);
+
+figure(9); % Comparison Plot of Multiple Waves (Ref vs. Pos)
 % Broken code below
 % for k = 1:ix_length
 %     for j = 1:1
