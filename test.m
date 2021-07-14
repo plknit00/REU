@@ -239,7 +239,7 @@ end
 %% ********** Brain Hansen Stuff // Traces **********
 
 figure(5); %Time histories of u(x,t) & v(x,t) vs. t, number of
-for ix = 1:8:(Nx+Nx_branch)
+for ix = 1:10:(Nx+Nx_branch)
 %for ix = (Nx-10):(Nx+10)
     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
@@ -272,135 +272,107 @@ set(gca,'FontSize',16);
 
 %% ***************** Velocity graphs *************
 
-
 % use linear interpolation
-time_arr = zeros(5,Nx+Nx_branch-2);
-velocity = zeros(5,Nx+Nx_branch-2);
-refract = zeros(1,Nx+Nx_branch-2);
-% exclude sinus node since it doesn't carry information
-for ix = 51:(Nx + Nx_branch - 2)
-    lower_bound = 0.5;
-    cell1 = ix;
-    t_right = 0;
-    t_left = 0;
+num_wave = 4;
+time_arr = zeros(num_wave,Nx+Nx_branch-2);
+velocity = zeros(num_wave,Nx+Nx_branch-2);
+refract = zeros(num_wave,Nx+Nx_branch-2);
+ix_range = 51:Nx+Nx_branch-2;
+%ix_range = [60:160,197:290,335:580];
+ix_length = length(ix_range);
+count = 0;
+for ix = ix_range
+    lower_bound = 0.1;
+    it_right = zeros(1,num_wave);
+    it_left = zeros(1,num_wave);
     
-    for it = 33500:54000
-        if (u_traces(cell1,it) > lower_bound)
-            t_right = it;
-            t_left = it - 1;
+    for it = 34000:52000 % wave 1 full
+        if (u_traces(ix,it) > lower_bound)
+            it_right(1) = it;
+            it_left(1) = it - 1;
             break;
         end
-        %refractoriness at time of u wave arrival
-        % probably in btw 2 times so linearly interpolate
     end
-    big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-    alpha = big_term / (1 + big_term);
-    time_arr(1,ix) = t_left + alpha;
-    % should be velocity (ix + 1/2) but we can only use integer indicies
-    % velcoity is change in dist ( = 1) / change in time 
-    velocity(1,ix) = abs(1/(time_arr(1,ix) - time_arr(1,ix-1)));
-    
+
     if (ix < first_cell) % beginning of exit pathway
-        for it = 415000:47000 % wave 2
-            if (u_traces(cell1,it) > lower_bound)
-                t_right = it;
-                t_left = it - 1;
+        for it = 40000:48000 % wave 2
+            if (u_traces(ix,it) > lower_bound)
+                it_right(2) = it;
+                it_left(2) = it - 1;
                 break;
             end
         end
-        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-        alpha = big_term / (1 + big_term);
-        beta = t_right - alpha;
-        v_left = v_traces(ix,t_left);
-        v_right = v_traces(ix,t_right);
-        refract(ix) = (alpha*v_right + beta*v_left);
-        time_arr(2,ix) = t_left + alpha;
-        velocity(2,ix) = abs(1/(time_arr(2,ix) - time_arr(2,ix-1)));
-        
-        for it = 475000:55000 % wave 3
-            if (u_traces(cell1,it) > lower_bound)
-                t_right = it;
-                t_left = it - 1;
+        for it = 47000:54000 % wave 3
+            if (u_traces(ix,it) > lower_bound)
+                it_right(3) = it;
+                it_left(3) = it - 1;
                 break;
             end
         end
-        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-        alpha = big_term / (1 + big_term);
-        time_arr(3,ix) = t_left + alpha;
-        velocity(3,ix) = abs(1/(time_arr(3,ix) - time_arr(3,ix-1)));
-        
         for it = 54000:62000 % wave 4
-            if (u_traces(cell1,it) > lower_bound)
-                t_right = it;
-                t_left = it - 1;
+            if (u_traces(ix,it) > lower_bound)
+                it_right(4) = it;
+                it_left(4) = it - 1;
                 break;
             end
         end
-        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-        alpha = big_term / (1 + big_term);
-        time_arr(4,ix) = t_left + alpha;
-        velocity(4,ix) = abs(1/(time_arr(4,ix) - time_arr(4,ix-1)));
-        
-%         for it = 27500:35000 % wave 5
-%             if (u_traces(cell1,it) > lower_bound)
-%                 t_right = it;
-%                 t_left = it - 1;
-%                 break;
-%             end
-%         end
-%         big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-%         alpha = big_term / (1 + big_term);
-%         time_arr(5,ix) = t_left + alpha;
-%         velocity(5,ix) = abs(1/(time_arr(5,ix) - time_arr(5,ix-1)));
     
     elseif (ix >= first_cell) && (ix <= 300) % rest of exit pathway
-        for it = 44000:52000 % wave 2
-            if (u_traces(cell1,it) > lower_bound)
-                t_right = it;
-                t_left = it - 1;
+        for it = 43800:52000 % wave 2
+            if (u_traces(ix,it) > lower_bound)
+                it_right(2) = it;
+                it_left(2) = it - 1;
                 break;
             end
         end
-        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-        alpha = big_term / (1 + big_term);
-        time_arr(2,ix) = t_left + alpha;
-        velocity(2,ix) = abs(1/(time_arr(2,ix) - time_arr(2,ix-1)));
-        
-        for it = 51000:60000 % wave 3
-            if (u_traces(cell1,it) > lower_bound)
-                t_right = it;
-                t_left = it - 1;
+
+        for it = 57500:60000 % wave 3
+            if (u_traces(ix,it) > lower_bound)
+                it_right(3) = it;
+                it_left(3) = it - 1;
                 break;
             end
         end
-        big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-        alpha = big_term / (1 + big_term);
-        time_arr(3,ix) = t_left + alpha;
-        velocity(3,ix) = abs(1/(time_arr(3,ix) - time_arr(3,ix-1)));
-        
-%         for it = 23000:31000 % wave 4
-%             if (u_traces(cell1,it) > lower_bound)
-%                 t_right = it;
-%                 t_left = it - 1;
-%                 break;
-%             end
-%         end
-%         big_term = (0.5 - u_traces(ix,t_left)) / (u_traces(ix,t_right) - 0.5);
-%         alpha = big_term / (1 + big_term);
-%         time_arr(4,ix) = t_left + alpha;
-%         velocity(4,ix) = abs(1/(time_arr(4,ix) - time_arr(4,ix-1)));
     end
     
+    for k = 1:num_wave
+        if (it_left(k) > 0) && (it_right(k) > 0)
+            if (u_traces(ix,it_left(k)) <= lower_bound) && (u_traces(ix,it_right(k)) >= lower_bound)
+                big_term = (lower_bound - u_traces(ix,it_left(k))) / (u_traces(ix,it_right(k)) - lower_bound);
+                alpha = big_term / (1 + big_term);
+                if (alpha > 1) || (alpha < 0)
+                    count = count +1;
+                end
+                time_arr(k,ix) = it_left(k) + alpha;
+                beta = 1 - alpha;
+                v_left = v_traces(ix,it_left(k));
+                v_right = v_traces(ix,it_right(k));
+                refract(k,ix) = (alpha*v_right + beta*v_left);
+                % should be velocity (ix + 1/2) but we can only use integer indicies
+                % velcoity is change in dist ( = 1) / change in time 
+                velocity(k,ix) = abs(1/(time_arr(k,ix) - time_arr(k,ix-1)));
+            end
+        end
+    end
 end
-
+bad = count
 figure(8);
+% for k = 1:ix_length
+%     plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
+%         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
+%         'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
+% end
+% Broken code below
+% for k = 1:ix_length
+%     for j = 1:num_wave
+%         plot(ix_range(k)*Dx,velocity(j,:),'r','LineWidth',2); hold on;
+%     end
+% end
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(1,:),'r','LineWidth',2); hold on;
-% legend('wave 1');
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(2,:),'b','LineWidth',2); hold on;
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(3,:),'k','LineWidth',2); hold on;
 plot((0:(Nx+Nx_branch-3))*Dx,velocity(4,:),'g','LineWidth',2); hold on;
-plot((0:(Nx+Nx_branch-3))*Dx,velocity(5,:),'c','LineWidth',2);
-legend('wave 1', 'wave 2', 'wave 3', 'wave 4', 'wave 5');
+legend('wave 6', 'wave 7', 'wave 8', 'wave 9');
 str = sprintf('Velocity of Action Potential');
 title(str);
 hold off;
@@ -408,10 +380,37 @@ xlabel('Position'); ylabel('Velocity');
 set(gca,'FontSize',16);
 
 figure(9);
-plot(refract(:),velocity(1,:),'r*','LineWidth',2);
-str = sprintf('Velocity of Action Potential vs. Refractoriness at the same time');
+for k = 1:ix_length
+    plot(refract(1,ix_range(k)),velocity(1,ix_range(k)),'o','LineWidth',2,...
+        'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
+        'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
+end
+str = sprintf('Velocity of Action Potential vs. Refractoriness');
 title(str);
 hold off;
-xlabel('Refractoriness'); 
+xlabel('Refractoriness'); ylabel('Velocity'); 
+set(gca,'FontSize',16);
+
+figure(10);
+% for k = 1:ix_length
+%     plot(ix_range(k)*Dx,refract(1,ix_range(k)),'o','LineWidth',2,...
+%         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
+%         'MarkerEdgeColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)]); hold on;
+% end
+% Broken code below
+% for k = 1:ix_length
+%     for j = 1:1
+%         plot(ix_range(k)*Dx,refract(j,ix_range(k)),'r','LineWidth',2); hold on;
+%     end
+% end
+plot((0:(Nx+Nx_branch-3))*Dx,refract(1,:),'r*','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,refract(2,:),'b*','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,refract(3,:),'k*','LineWidth',2); hold on;
+plot((0:(Nx+Nx_branch-3))*Dx,refract(4,:),'g*','LineWidth',2); hold on;
+legend('wave 6', 'wave 7', 'wave 8', 'wave 9');
+str = sprintf('Refractoriness vs. Position');
+title(str);
+hold off;
+xlabel('Position'); ylabel('Refractoriness'); 
 set(gca,'FontSize',16);
 
