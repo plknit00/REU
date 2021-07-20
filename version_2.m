@@ -222,23 +222,23 @@ end
 
 %% ********** Brain Hansen Stuff // Traces **********
 
-figure(6); %Time histories of u(x,t) & v(x,t) vs. t, number of
-for ix = 1:10:(Nx+Nx_branch)
-%for ix = 171:175
-    plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
-    plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
-end
-hold off;
-xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
-str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
-title(str,'FontSize',20);
-set(gca,'FontSize',16);
+% figure(6); %Time histories of u(x,t) & v(x,t) vs. t, number of
+% for ix = 1:10:(Nx+Nx_branch)
+% %for ix = 171:175
+%     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
+%     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
+% end
+% hold off;
+% xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
+% str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+% title(str,'FontSize',20);
+% set(gca,'FontSize',16);
 
 %% ************* Hypothesis 3 Stuff ***************
 
 num_waves = 8;
-cell_num = 150;
-cell_bar = 51;
+cell_num = 150; % can be any cell after sinus node
+cell_bar = 51; % right after sinus node
 u_thresh = 0.2;
 u_thresh_small = 0.05;
 wave_count1 = 1;
@@ -255,7 +255,7 @@ it_right2 = 0;
 for it = 1:Nt
     if ((u_traces(cell_num, it) > u_thresh) && (good_time1 == true))
         it_right1 = it;
-        it_left1 = it - 1;s
+        it_left1 = it - 1;
         big_term = (lower_bound - u_traces(ix,it_left1)) / (u_traces(ix,it_right1) - u_thresh);
         alpha = big_term / (1 + big_term);
         A(wave_count1) = it_left1 + alpha;
@@ -284,21 +284,28 @@ for it = 1:Nt
 end
 
 figure(7);
-plot(A(:),vn(:),'ro','LineWidth',2);
+for k = 1:length(A)
+    plot(A(k),vn(k),'o','LineWidth',2,...
+        'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
+        'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
+end
 str = sprintf('Refractoriness vs. Activation Time');
 title(str);
 hold off;
 xlabel('Activation Time'); ylabel('Refractoriness'); 
 set(gca,'FontSize',16);
 
-% figure(8);
-% plot((A(:)-A_bar(:)),vn(:),'ro','LineWidth',2);
-% str = sprintf('Refractoriness vs. Delayed Activation Time');
-% title(str);
-% hold off;
-% xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
-% set(gca,'FontSize',16);
-
+figure(8);
+for k = 1:length(A)
+    plot((A(k)-A_bar(k)),vn(k),'o','LineWidth',2,...
+        'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
+        'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
+end
+str = sprintf('Refractoriness vs. Delayed Activation Time');
+title(str);
+hold off;
+xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
+set(gca,'FontSize',16);
 
 %% ***************** Velocity graphs *************
 
@@ -382,7 +389,7 @@ for ix = ix_range
     end
 end
 
-% figure(9); % Gradient Plot of One Wave (Vel vs. Pos)
+% figure(11); % Gradient Plot of One Wave (Vel vs. Pos)
 % for k = 1:ix_length
 %     plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
 %         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -394,7 +401,7 @@ end
 % xlabel('Position'); ylabel('Velocity'); legend('wave 6');
 % set(gca,'FontSize',16);
 % 
-% figure (10); % Comparison Plot of Multiple Waves (Vel vs. Pos)
+% figure (12); % Comparison Plot of Multiple Waves (Vel vs. Pos)
 % plot((0:(Nx+Nx_branch-3))*Dx,velocity(1,:),'r*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,velocity(2,:),'b*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,velocity(3,:),'k*','LineWidth',2); hold on;
@@ -406,7 +413,7 @@ end
 % xlabel('Position'); ylabel('Velocity'); 
 % set(gca,'FontSize',16);
 % 
-% figure(11); % Gradient Plot of One Wave (Vel vs. Ref)
+% figure(13); % Gradient Plot of One Wave (Vel vs. Ref)
 % for k = 1:ix_length
 %     plot(refract(1,ix_range(k)),velocity(1,ix_range(k)),'o','LineWidth',2,...
 %         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -418,7 +425,7 @@ end
 % xlabel('Refractoriness'); ylabel('Velocity'); 
 % set(gca,'FontSize',16);
 % 
-% figure(12); % Gradient plot of one wave (Ref vs. Pos)
+% figure(14); % Gradient plot of one wave (Ref vs. Pos)
 % for k = 1:ix_length
 %     plot(ix_range(k)*Dx,refract(1,ix_range(k)),'o','LineWidth',2,...
 %         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -430,7 +437,7 @@ end
 % xlabel('Position'); ylabel('Refractoriness'); 
 % set(gca,'FontSize',16);
 % 
-% figure(13); % Comparison Plot of Multiple Waves (Ref vs. Pos)
+% figure(15); % Comparison Plot of Multiple Waves (Ref vs. Pos)
 % plot((0:(Nx+Nx_branch-3))*Dx,refract(1,:),'r*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,refract(2,:),'b*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,refract(3,:),'k*','LineWidth',2); hold on;
