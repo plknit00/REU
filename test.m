@@ -1,6 +1,4 @@
-% Funky diffusion code, that solves
-% du/dt = D*(d^2u/dx^2) using the forward Euler method.
-% MAKING D AN ARRAY NOW RATHER THAN A VARIABLE
+% Test file to try stuff without breaking good code
 
 % PLOT VALUES
 Nx = 600; % Number of grid points in our simulation model

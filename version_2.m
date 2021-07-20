@@ -16,7 +16,7 @@ for ix = 50:300  %  exit pathway
     end
 end
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
-Dt = 0.1*(Dx*Dx)/max(D); % Timestep size (choose to be numerically stable)
+Dt = 0.1*(Dx*Dx)/max(D_branch,max(D)); % Timestep size (choose to be numerically stable)
 Nt = 100000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
@@ -234,6 +234,72 @@ str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
 title(str,'FontSize',20);
 set(gca,'FontSize',16);
 
+%% ************* Hypothesis 3 Stuff ***************
+
+num_waves = 8;
+cell_num = 150;
+cell_bar = 51;
+u_thresh = 0.2;
+u_thresh_small = 0.05;
+wave_count1 = 1;
+wave_count2 = 1;
+good_time1 = true;
+good_time2 = true;
+A = zeros(1,num_waves); % activation time of nth wave
+A_bar = zeros(1,num_waves);
+vn = zeros(1,num_waves); % refractoriness of nth wave at A(n)
+it_left1 = 0;
+it_right1 = 0;
+it_left2 = 0;
+it_right2 = 0;
+for it = 1:Nt
+    if ((u_traces(cell_num, it) > u_thresh) && (good_time1 == true))
+        it_right1 = it;
+        it_left1 = it - 1;s
+        big_term = (lower_bound - u_traces(ix,it_left1)) / (u_traces(ix,it_right1) - u_thresh);
+        alpha = big_term / (1 + big_term);
+        A(wave_count1) = it_left1 + alpha;
+        beta = 1 - alpha;
+        v_left = v_traces(ix,it_left1);
+        v_right = v_traces(ix,it_right1);
+        vn(wave_count1) = (alpha*v_right + beta*v_left);
+        wave_count1 = wave_count1 + 1;
+        good_time1 = false;
+    end
+    if (u_traces(cell_num, it) < u_thresh_small)
+        good_time1 = true;
+    end
+    if ((u_traces(cell_bar, it) > u_thresh) && (good_time2 == true))
+        it_right2 = it;
+        it_left2 = it - 1;
+        big_term = (lower_bound - u_traces(ix,it_left2)) / (u_traces(ix,it_right2) - u_thresh);
+        alpha = big_term / (1 + big_term);
+        A_bar(wave_count2) = it_left2 + alpha;
+        wave_count2 = wave_count2 + 1;
+        good_time2 = false;
+    end
+    if (u_traces(cell_bar, it) < u_thresh_small)
+        good_time2 = true;
+    end
+end
+
+figure(7);
+plot(A(:),vn(:),'ro','LineWidth',2);
+str = sprintf('Refractoriness vs. Activation Time');
+title(str);
+hold off;
+xlabel('Activation Time'); ylabel('Refractoriness'); 
+set(gca,'FontSize',16);
+
+% figure(8);
+% plot((A(:)-A_bar(:)),vn(:),'ro','LineWidth',2);
+% str = sprintf('Refractoriness vs. Delayed Activation Time');
+% title(str);
+% hold off;
+% xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
+% set(gca,'FontSize',16);
+
+
 %% ***************** Velocity graphs *************
 
 % use linear interpolation
@@ -316,7 +382,7 @@ for ix = ix_range
     end
 end
 
-% figure(7); % Gradient Plot of One Wave (Vel vs. Pos)
+% figure(9); % Gradient Plot of One Wave (Vel vs. Pos)
 % for k = 1:ix_length
 %     plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
 %         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -328,7 +394,7 @@ end
 % xlabel('Position'); ylabel('Velocity'); legend('wave 6');
 % set(gca,'FontSize',16);
 % 
-% figure (8); % Comparison Plot of Multiple Waves (Vel vs. Pos)
+% figure (10); % Comparison Plot of Multiple Waves (Vel vs. Pos)
 % plot((0:(Nx+Nx_branch-3))*Dx,velocity(1,:),'r*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,velocity(2,:),'b*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,velocity(3,:),'k*','LineWidth',2); hold on;
@@ -340,7 +406,7 @@ end
 % xlabel('Position'); ylabel('Velocity'); 
 % set(gca,'FontSize',16);
 % 
-% figure(9); % Gradient Plot of One Wave (Vel vs. Ref)
+% figure(11); % Gradient Plot of One Wave (Vel vs. Ref)
 % for k = 1:ix_length
 %     plot(refract(1,ix_range(k)),velocity(1,ix_range(k)),'o','LineWidth',2,...
 %         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -352,7 +418,7 @@ end
 % xlabel('Refractoriness'); ylabel('Velocity'); 
 % set(gca,'FontSize',16);
 % 
-% figure(10); % Gradient plot of one wave (Ref vs. Pos)
+% figure(12); % Gradient plot of one wave (Ref vs. Pos)
 % for k = 1:ix_length
 %     plot(ix_range(k)*Dx,refract(1,ix_range(k)),'o','LineWidth',2,...
 %         'MarkerFaceColor',[1-(ix_range(k)/600),0,(ix_range(k)/600)],...
@@ -364,7 +430,7 @@ end
 % xlabel('Position'); ylabel('Refractoriness'); 
 % set(gca,'FontSize',16);
 % 
-% figure(11); % Comparison Plot of Multiple Waves (Ref vs. Pos)
+% figure(13); % Comparison Plot of Multiple Waves (Ref vs. Pos)
 % plot((0:(Nx+Nx_branch-3))*Dx,refract(1,:),'r*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,refract(2,:),'b*','LineWidth',2); hold on;
 % plot((0:(Nx+Nx_branch-3))*Dx,refract(3,:),'k*','LineWidth',2); hold on;
