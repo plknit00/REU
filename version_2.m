@@ -12,6 +12,11 @@ for ix = 50:300  %  exit pathway
     if (ix>=first_cell) && (ix <= last_cell)
         D(ix) = 0.025;
     else % rest of exit pathway
+        % 4:1 reflection case cells 123-129
+        %D(ix) = 0.80035874065; % lower bound
+        %D(ix) = 0.80119157; % lower bound potential repeat reflections
+        %D(ix) = 0.80119165; % upper bound potential repeat reflections
+        %D(ix) = 0.8011916;
         D(ix) = 0.806;
     end
 end
@@ -20,7 +25,8 @@ Dt = 0.1*(Dx*Dx)/max(D_branch,max(D)); % Timestep size (choose to be numerically
 Nt = 100000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
-u = 0.01*rand(1,Nx);
+rng(1); % generate same random numbers every time
+u = 0.01*rand(1,Nx); 
 
 % PARAMETERS and ARRAY ALLOCATION
 u_new = zeros(1,Nx);
@@ -184,60 +190,60 @@ end
 
 %% ************ History plots **********************
 
-% figure(2); % Beginning of interesting section, D goes from almost 1 back to very small
-% plot((0:(Nt-1))*Dt,u_hist(1,:),'r','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,v_hist(1,:),'g','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,u_hist(2,:),'b','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,v_hist(2,:),'k','LineWidth',2);
-% legend('u cell 170', 'v cell 170', 'u cell 171', 'v cell 171');
-% str = sprintf('u & v at cell %i and cell %i',cell_val(1),cell_val(2));
-% title(str);
-% hold off;
-% xlabel('Time'); 
-% set(gca,'FontSize',16);
+figure(2); % Beginning of interesting section, D goes from almost 1 back to very small
+plot((0:(Nt-1))*Dt,u_hist(1,:),'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(1,:),'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_hist(2,:),'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(2,:),'k','LineWidth',2);
+legend('u cell 170', 'v cell 170', 'u cell 171', 'v cell 171');
+str = sprintf('u & v at cell %i and cell %i',cell_val(1),cell_val(2));
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
 
-% figure(3); % End of interesting section, D goes from very small back to almost 1
-% plot((0:(Nt-1))*Dt,u_hist(3,:),'r','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,v_hist(3,:),'g','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,u_hist(4,:),'b','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,v_hist(4,:),'k','LineWidth',2);
-% legend('u cell 174', 'v cell 174', 'u cell 175', 'v cell 175');
-% str = sprintf('u & v at cell %i and cell %i',cell_val(3),cell_val(4));
-% title(str);
-% hold off;
-% xlabel('Time'); 
-% set(gca,'FontSize',16);
+figure(3); % End of interesting section, D goes from very small back to almost 1
+plot((0:(Nt-1))*Dt,u_hist(3,:),'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(3,:),'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_hist(4,:),'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(4,:),'k','LineWidth',2);
+legend('u cell 174', 'v cell 174', 'u cell 175', 'v cell 175');
+str = sprintf('u & v at cell %i and cell %i',cell_val(3),cell_val(4));
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
 
-% figure(4); % Branch Point
-% plot((0:(Nt-1))*Dt,u_hist(5,:),'r','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,v_hist(5,:),'g','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,u_hist(6,:),'b','LineWidth',2); hold on;
-% plot((0:(Nt-1))*Dt,v_hist(6,:),'k','LineWidth',2);
-% legend('u cell 296', 'v cell 296', 'u cell 300', 'v cell 300');
-% str = sprintf('u & v at cell %i and cell %i',cell_val(5),cell_val(6));
-% title(str);
-% hold off;
-% xlabel('Time'); 
-% set(gca,'FontSize',16);
+figure(4); % Branch Point
+plot((0:(Nt-1))*Dt,u_hist(5,:),'r','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(5,:),'g','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,u_hist(6,:),'b','LineWidth',2); hold on;
+plot((0:(Nt-1))*Dt,v_hist(6,:),'k','LineWidth',2);
+legend('u cell 296', 'v cell 296', 'u cell 300', 'v cell 300');
+str = sprintf('u & v at cell %i and cell %i',cell_val(5),cell_val(6));
+title(str);
+hold off;
+xlabel('Time'); 
+set(gca,'FontSize',16);
 
 %% ********** Brain Hansen Stuff // Traces **********
 
-% figure(6); %Time histories of u(x,t) & v(x,t) vs. t, number of
-% for ix = 1:10:(Nx+Nx_branch)
-% %for ix = 171:175
-%     plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
-%     plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
-% end
-% hold off;
-% xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
-% str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
-% title(str,'FontSize',20);
-% set(gca,'FontSize',16);
+figure(6); %Time histories of u(x,t) & v(x,t) vs. t, number of
+for ix = 1:10:(Nx+Nx_branch)
+% for ix = 200:400
+    plot((0:(Nt-1))*Dt,u_traces(ix,:)-ix*0.05,'b','LineWidth',2); hold on;
+    plot((0:(Nt-1))*Dt,v_traces(ix,:)-ix*0.05,'r','LineWidth',2); hold on;
+end
+hold off;
+xlabel('Time','FontSize',20);ylabel('x','FontSize',20);
+str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+title(str,'FontSize',20);
+set(gca,'FontSize',16);
 
 %% ************* Hypothesis 3 Stuff ***************
 
 % later cell we want to study
-cell_num = 290; % can be any cell after sinus node
+cell_num = 175; % can be any cell after sinus node
 it_left1 = 0; % time step right before activation
 it_right1 = 0; % time step right after activation
 wave_count1 = 1; % to keep track of indexing into vectors
@@ -285,7 +291,7 @@ for it = 1:Nt
         it_left2 = it - 1;
         big_term = (thresh2 - u_traces(cell_bar,it_left2)) / (u_traces(cell_bar,it_right2) - thresh2);
         alpha = big_term / (1 + big_term);
-        A_bar(wave_count2) = it_left2 + alpha;
+        A_bar(wave_count2) = it_left2 + alpha; % see if theyre equally spaced in time
         wave_count2 = wave_count2 + 1;
         good_time2 = false;
     end
@@ -293,6 +299,12 @@ for it = 1:Nt
         good_time2 = true;
     end
 end
+
+% remove failed waves in A_bar array
+if (cell_num > last_cell)
+    num_failed_waves = length(A_bar) - length(A);
+end
+
 
 figure(7);
 for k = 1:length(A)
@@ -308,7 +320,19 @@ set(gca,'FontSize',16);
 
 figure(8);
 for k = 1:length(A)
-    plot((A(k)-A_bar(k)),vn(k),'o','LineWidth',2,...
+    plot(vn(k),(A(k)-A_bar(k)),'o','LineWidth',2,...
+        'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
+        'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
+end
+str = sprintf('Refractoriness vs. Delayed Activation Time');
+title(str);
+hold off;
+ylabel('Activation Time Increase'); xlabel('Refractoriness'); 
+set(gca,'FontSize',16);
+
+figure(9);
+for k = 1:(length(A) - 1)
+    plot((A(k)-A_bar(k)),vn(k+1),'o','LineWidth',2,...
         'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
         'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
 end
@@ -318,88 +342,108 @@ hold off;
 xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
 set(gca,'FontSize',16);
 
-%% ***************** Velocity graphs *************
-
-% use linear interpolation
-num_wave = 4;
-time_arr = zeros(num_wave,Nx+Nx_branch-2);
-velocity = zeros(num_wave,Nx+Nx_branch-2);
-refract = zeros(num_wave,Nx+Nx_branch-2);
-%ix_range = 51:Nx+Nx_branch-2; % includes all but sinus node
-ix_range = [70:155,205:290,350:570]; % only includes cells where D is constant for a while
-ix_length = length(ix_range);
-for ix = ix_range
-    lower_bound = 0.1;
-    it_right = zeros(1,num_wave);
-    it_left = zeros(1,num_wave);
-    
-    for it = 34000:52000 % wave 1 full
-        if (u_traces(ix,it) > lower_bound)
-            it_right(1) = it;
-            it_left(1) = it - 1;
-            break;
-        end
-    end
-
-    if (ix < first_cell) % beginning of exit pathway
-        for it = 40000:48000 % wave 2
-            if (u_traces(ix,it) > lower_bound)
-                it_right(2) = it;
-                it_left(2) = it - 1;
-                break;
-            end
-        end
-        for it = 47000:54000 % wave 3
-            if (u_traces(ix,it) > lower_bound)
-                it_right(3) = it;
-                it_left(3) = it - 1;
-                break;
-            end
-        end
-        for it = 54000:62000 % wave 4
-            if (u_traces(ix,it) > lower_bound)
-                it_right(4) = it;
-                it_left(4) = it - 1;
-                break;
-            end
-        end
-    
-    elseif (ix >= first_cell) && (ix <= 300) % rest of exit pathway
-        for it = 43800:52000 % wave 2
-            if (u_traces(ix,it) > lower_bound)
-                it_right(2) = it;
-                it_left(2) = it - 1;
-                break;
-            end
-        end
-
-        for it = 50500:60000 % wave 3
-            if (u_traces(ix,it) > lower_bound)
-                it_right(3) = it;
-                it_left(3) = it - 1;
-                break;
-            end
-        end
-    end
-    
-    for k = 1:num_wave
-        if (it_left(k) > 0) && (it_right(k) > 0) % only continue if variables are valid
-            if (u_traces(ix,it_left(k)) <= lower_bound) && (u_traces(ix,it_right(k)) >= lower_bound)
-                big_term = (lower_bound - u_traces(ix,it_left(k))) / (u_traces(ix,it_right(k)) - lower_bound);
-                alpha = big_term / (1 + big_term);
-                time_arr(k,ix) = it_left(k) + alpha; % plot these vs. position (compare btw waves)
-                beta = 1 - alpha;
-                v_left = v_traces(ix,it_left(k));
-                v_right = v_traces(ix,it_right(k));
-                refract(k,ix) = (alpha*v_right + beta*v_left);
-                % should be velocity (ix + 1/2) but we can only use integer indicies
-                % velcoity is change in dist ( = 1) / change in time 
-                velocity(k,ix) = abs(1/(time_arr(k,ix) - time_arr(k,ix-1)));
-            end
-        end
-    end
+figure(10);
+for k = 1:length(A)
+    plot((A(k)-A_bar(k)),vn(k),'ro','LineWidth',2); hold on;
+end
+for k = 1:(length(A) - 1)
+    plot((A(k)-A_bar(k)),vn(k+1),'bo','LineWidth',2); hold on;
+end
+A_comet = zeros(1,2*length(A));
+v_comet = zeros(1,2*length(vn));
+for i = 2:2:(2*length(A)-3)
+    v_comet(i-1) = vn(i/2);
+    v_comet(i) = vn(i/2+1);
+    A_comet(i-1) = A(i/2)- A_bar(i/2);
+    A_comet(i) = A(i/2)- A_bar(i/2);
+end
+for i = 1:(length(A_comet)-1)
+    plot(A_comet(i:(i+1)),v_comet(i:(i+1)),'g','LineWidth',2);
+    pause;
 end
 
+%% ***************** Velocity graphs *************
+
+% % use linear interpolation
+% num_wave = 4;
+% time_arr = zeros(num_wave,Nx+Nx_branch-2);
+% velocity = zeros(num_wave,Nx+Nx_branch-2);
+% refract = zeros(num_wave,Nx+Nx_branch-2);
+% %ix_range = 51:Nx+Nx_branch-2; % includes all but sinus node
+% ix_range = [70:155,205:290,350:570]; % only includes cells where D is constant for a while
+% ix_length = length(ix_range);
+% for ix = ix_range
+%     lower_bound = 0.1;
+%     it_right = zeros(1,num_wave);
+%     it_left = zeros(1,num_wave);
+%     
+%     for it = 34000:52000 % wave 1 full
+%         if (u_traces(ix,it) > lower_bound)
+%             it_right(1) = it;
+%             it_left(1) = it - 1;
+%             break;
+%         end
+%     end
+% 
+%     if (ix < first_cell) % beginning of exit pathway
+%         for it = 40000:48000 % wave 2
+%             if (u_traces(ix,it) > lower_bound)
+%                 it_right(2) = it;
+%                 it_left(2) = it - 1;
+%                 break;
+%             end
+%         end
+%         for it = 47000:54000 % wave 3
+%             if (u_traces(ix,it) > lower_bound)
+%                 it_right(3) = it;
+%                 it_left(3) = it - 1;
+%                 break;
+%             end
+%         end
+%         for it = 54000:62000 % wave 4
+%             if (u_traces(ix,it) > lower_bound)
+%                 it_right(4) = it;
+%                 it_left(4) = it - 1;
+%                 break;
+%             end
+%         end
+%     
+%     elseif (ix >= first_cell) && (ix <= 300) % rest of exit pathway
+%         for it = 43800:52000 % wave 2
+%             if (u_traces(ix,it) > lower_bound)
+%                 it_right(2) = it;
+%                 it_left(2) = it - 1;
+%                 break;
+%             end
+%         end
+% 
+%         for it = 50500:60000 % wave 3
+%             if (u_traces(ix,it) > lower_bound)
+%                 it_right(3) = it;
+%                 it_left(3) = it - 1;
+%                 break;
+%             end
+%         end
+%     end
+%     
+%     for k = 1:num_wave
+%         if (it_left(k) > 0) && (it_right(k) > 0) % only continue if variables are valid
+%             if (u_traces(ix,it_left(k)) <= lower_bound) && (u_traces(ix,it_right(k)) >= lower_bound)
+%                 big_term = (lower_bound - u_traces(ix,it_left(k))) / (u_traces(ix,it_right(k)) - lower_bound);
+%                 alpha = big_term / (1 + big_term);
+%                 time_arr(k,ix) = it_left(k) + alpha; % plot these vs. position (compare btw waves)
+%                 beta = 1 - alpha;
+%                 v_left = v_traces(ix,it_left(k));
+%                 v_right = v_traces(ix,it_right(k));
+%                 refract(k,ix) = (alpha*v_right + beta*v_left);
+%                 % should be velocity (ix + 1/2) but we can only use integer indicies
+%                 % velcoity is change in dist ( = 1) / change in time 
+%                 velocity(k,ix) = abs(1/(time_arr(k,ix) - time_arr(k,ix-1)));
+%             end
+%         end
+%     end
+% end
+%
 % figure(11); % Gradient Plot of One Wave (Vel vs. Pos)
 % for k = 1:ix_length
 %     plot(ix_range(k)*Dx,velocity(1,ix_range(k)),'o','LineWidth',2,...
