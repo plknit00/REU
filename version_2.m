@@ -236,32 +236,41 @@ end
 
 %% ************* Hypothesis 3 Stuff ***************
 
-num_waves = 8;
-cell_num = 150; % can be any cell after sinus node
+% later cell we want to study
+cell_num = 290; % can be any cell after sinus node
+it_left1 = 0; % time step right before activation
+it_right1 = 0; % time step right after activation
+wave_count1 = 1; % to keep track of indexing into vectors
+good_time1 = true; % to make sure activation times aren't continually overwritten
+% reference cell
 cell_bar = 51; % right after sinus node
-u_thresh = 0.2;
-u_thresh_small = 0.05;
-wave_count1 = 1;
-wave_count2 = 1;
-good_time1 = true;
-good_time2 = true;
-A = zeros(1,num_waves); % activation time of nth wave
-A_bar = zeros(1,num_waves);
-vn = zeros(1,num_waves); % refractoriness of nth wave at A(n)
-it_left1 = 0;
-it_right1 = 0;
 it_left2 = 0;
 it_right2 = 0;
+wave_count2 = 1;
+good_time2 = true;
+% universal parameters
+num_waves = 8;
+u_thresh = 0.2;
+u_thresh_small = 0.05;
+A = zeros(1,num_waves); % actual activation time of nth wave
+A_bar = zeros(1,num_waves); % expected activation time of nth wave (based on cell right next to sinus node)
+vn = zeros(1,num_waves); % refractoriness of nth wave at A(n)
 for it = 1:Nt
-    if ((u_traces(cell_num, it) > u_thresh) && (good_time1 == true))
+    %thresh1 = u_thresh
+    if (cell_num <= 300)
+        thresh1 = (v_traces(cell_num,it)+b(cell_num))/a;
+    else
+        thresh1 = (v_traces(cell_num,it)+b_branch)/a;
+    end
+    if ((u_traces(cell_num, it) > thresh1) && (good_time1 == true))
         it_right1 = it;
         it_left1 = it - 1;
-        big_term = (lower_bound - u_traces(ix,it_left1)) / (u_traces(ix,it_right1) - u_thresh);
+        big_term = (thresh1 - u_traces(cell_num,it_left1)) / (u_traces(cell_num,it_right1) - thresh1);
         alpha = big_term / (1 + big_term);
         A(wave_count1) = it_left1 + alpha;
         beta = 1 - alpha;
-        v_left = v_traces(ix,it_left1);
-        v_right = v_traces(ix,it_right1);
+        v_left = v_traces(cell_num,it_left1);
+        v_right = v_traces(cell_num,it_right1);
         vn(wave_count1) = (alpha*v_right + beta*v_left);
         wave_count1 = wave_count1 + 1;
         good_time1 = false;
@@ -269,10 +278,12 @@ for it = 1:Nt
     if (u_traces(cell_num, it) < u_thresh_small)
         good_time1 = true;
     end
-    if ((u_traces(cell_bar, it) > u_thresh) && (good_time2 == true))
+    %thresh2 = u_thresh;
+    thresh2 = (v_traces(cell_bar,it)+b(cell_bar))/a;
+    if ((u_traces(cell_bar, it) > thresh2) && (good_time2 == true)) 
         it_right2 = it;
         it_left2 = it - 1;
-        big_term = (lower_bound - u_traces(ix,it_left2)) / (u_traces(ix,it_right2) - u_thresh);
+        big_term = (thresh2 - u_traces(cell_bar,it_left2)) / (u_traces(cell_bar,it_right2) - thresh2);
         alpha = big_term / (1 + big_term);
         A_bar(wave_count2) = it_left2 + alpha;
         wave_count2 = wave_count2 + 1;
