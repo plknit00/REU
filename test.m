@@ -9,7 +9,7 @@ for ix = 50:600  %  exit pathway
     if (ix>=first_cell) && (ix <= last_cell)
         D(ix) = 0.025;
         %D(ix) = 1.0;
-    elseif (ix >= 300)
+    elseif (ix >= 300) % branches
         D(ix) = 9.0;
     else % rest of exit pathway
          D(ix) = 0.806;
@@ -17,7 +17,7 @@ for ix = 50:600  %  exit pathway
 end
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
 Dt = 0.1*(Dx*Dx)/max(D); % Timestep size (choose to be numerically stable)
-Nt = 1000000; % Number of timesteps to run
+Nt = 100000; % Number of timesteps to run
 itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 u = 0.01*rand(1,Nx);

@@ -5,21 +5,16 @@
 % PLOT VALUES
 Nx = 300; % Number of grid points in our simulation model
 D = ones(1,Nx); % Diffusion coefficient
-D_branch = 1.0;
-first_cell = 171;
-last_cell = 175;
+D_branch = 1.0; 
+first_cell = 171; 
+last_cell = 175; 
 for ix = 50:300  %  exit pathway
     if (ix>=first_cell) && (ix <= last_cell)
-        D(ix) = 0.025;
+        D(ix) = 0.04; 
     else % rest of exit pathway
-        % 4:1 reflection case cells 123-129
-        %D(ix) = 0.80035874065; % lower bound
-        %D(ix) = 0.80119157; % lower bound potential repeat reflections
-        %D(ix) = 0.80119165; % upper bound potential repeat reflections
-        %D(ix) = 0.8011916;
-        D(ix) = 0.806;
+        D(ix) = 1.0; 
     end
-end
+end 
 Dx = 0.1; % Spacing between grid points in our model, larger # makes larger system length
 Dt = 0.1*(Dx*Dx)/max(D_branch,max(D)); % Timestep size (choose to be numerically stable)
 Nt = 100000; % Number of timesteps to run
@@ -27,6 +22,7 @@ itplot = 100; % Plot every itplot timesteps
 x = (0:(Nx-1))*Dx; % Define the coordinates of the gridpoints on the spatial grid
 rng(1); % generate same random numbers every time
 u = 0.01*rand(1,Nx); 
+%v = rand(1,Nx); 
 
 % PARAMETERS and ARRAY ALLOCATION
 u_new = zeros(1,Nx);
@@ -190,41 +186,41 @@ end
 
 %% ************ History plots **********************
 
-figure(2); % Beginning of interesting section, D goes from almost 1 back to very small
-plot((0:(Nt-1))*Dt,u_hist(1,:),'r','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,v_hist(1,:),'g','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,u_hist(2,:),'b','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,v_hist(2,:),'k','LineWidth',2);
-legend('u cell 170', 'v cell 170', 'u cell 171', 'v cell 171');
-str = sprintf('u & v at cell %i and cell %i',cell_val(1),cell_val(2));
-title(str);
-hold off;
-xlabel('Time'); 
-set(gca,'FontSize',16);
-
-figure(3); % End of interesting section, D goes from very small back to almost 1
-plot((0:(Nt-1))*Dt,u_hist(3,:),'r','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,v_hist(3,:),'g','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,u_hist(4,:),'b','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,v_hist(4,:),'k','LineWidth',2);
-legend('u cell 174', 'v cell 174', 'u cell 175', 'v cell 175');
-str = sprintf('u & v at cell %i and cell %i',cell_val(3),cell_val(4));
-title(str);
-hold off;
-xlabel('Time'); 
-set(gca,'FontSize',16);
-
-figure(4); % Branch Point
-plot((0:(Nt-1))*Dt,u_hist(5,:),'r','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,v_hist(5,:),'g','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,u_hist(6,:),'b','LineWidth',2); hold on;
-plot((0:(Nt-1))*Dt,v_hist(6,:),'k','LineWidth',2);
-legend('u cell 296', 'v cell 296', 'u cell 300', 'v cell 300');
-str = sprintf('u & v at cell %i and cell %i',cell_val(5),cell_val(6));
-title(str);
-hold off;
-xlabel('Time'); 
-set(gca,'FontSize',16);
+% figure(2); % Beginning of interesting section, D goes from almost 1 back to very small
+% plot((0:(Nt-1))*Dt,u_hist(1,:),'r','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,v_hist(1,:),'g','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,u_hist(2,:),'b','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,v_hist(2,:),'k','LineWidth',2);
+% legend('u cell 170', 'v cell 170', 'u cell 171', 'v cell 171');
+% str = sprintf('u & v at cell %i and cell %i',cell_val(1),cell_val(2));
+% title(str);
+% hold off;
+% xlabel('Time'); 
+% set(gca,'FontSize',16);
+% 
+% figure(3); % End of interesting section, D goes from very small back to almost 1
+% plot((0:(Nt-1))*Dt,u_hist(3,:),'r','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,v_hist(3,:),'g','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,u_hist(4,:),'b','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,v_hist(4,:),'k','LineWidth',2);
+% legend('u cell 174', 'v cell 174', 'u cell 175', 'v cell 175');
+% str = sprintf('u & v at cell %i and cell %i',cell_val(3),cell_val(4));
+% title(str);
+% hold off;
+% xlabel('Time'); 
+% set(gca,'FontSize',16);
+% 
+% figure(4); % Branch Point
+% plot((0:(Nt-1))*Dt,u_hist(5,:),'r','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,v_hist(5,:),'g','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,u_hist(6,:),'b','LineWidth',2); hold on;
+% plot((0:(Nt-1))*Dt,v_hist(6,:),'k','LineWidth',2);
+% legend('u cell 296', 'v cell 296', 'u cell 300', 'v cell 300');
+% str = sprintf('u & v at cell %i and cell %i',cell_val(5),cell_val(6));
+% title(str);
+% hold off;
+% xlabel('Time'); 
+% set(gca,'FontSize',16);
 
 %% ********** Brain Hansen Stuff // Traces **********
 
@@ -242,6 +238,7 @@ set(gca,'FontSize',16);
 
 %% ************* Hypothesis 3 Stuff ***************
 
+% for interesting region
 % later cell we want to study
 cell_num = 175; % can be any cell after sinus node
 it_left1 = 0; % time step right before activation
@@ -249,24 +246,60 @@ it_right1 = 0; % time step right after activation
 wave_count1 = 1; % to keep track of indexing into vectors
 good_time1 = true; % to make sure activation times aren't continually overwritten
 % reference cell
-cell_bar = 51; % right after sinus node
+cell_bar = 174; % right after sinus node
 it_left2 = 0;
 it_right2 = 0;
 wave_count2 = 1;
 good_time2 = true;
 % universal parameters
-num_waves = 8;
+num_waves = 5;
 u_thresh = 0.2;
 u_thresh_small = 0.05;
-A = zeros(1,num_waves); % actual activation time of nth wave
-A_bar = zeros(1,num_waves); % expected activation time of nth wave (based on cell right next to sinus node)
-vn = zeros(1,num_waves); % refractoriness of nth wave at A(n)
+A = nan(1,num_waves); % actual activation time of nth wave
+A_bar = nan(1,num_waves); % expected activation time of nth wave (based on cell right next to sinus node)
+vn = nan(1,num_waves); % refractoriness of nth wave at A(n)
+% branch point
+cell_num3 = 301; % can be any cell after sinus node
+it_left3 = 0; % time step right before activation
+it_right3 = 0; % time step right after activation
+wave_count3 = 1; % to keep track of indexing into vectors
+good_time3 = true; % to make sure activation times aren't continually overwritten
+% reference cell
+cell_bar4 = 299; % right after sinus node
+it_left4 = 0;
+it_right4 = 0;
+wave_count4 = 1;
+good_time4 = true;
+% universal parameters
+num_waves2 = 5;
+A2 = nan(1,num_waves2); % actual activation time of nth wave
+A_bar2 = nan(1,num_waves2); % expected activation time of nth wave (based on cell right next to sinus node)
+vn2 = nan(1,num_waves2); % refractoriness of nth wave at A(n)
 for it = 1:Nt
-    %thresh1 = u_thresh
+    % interesting region
+    thresh1 = u_thresh;
+    thresh2 = u_thresh;
+    thresh3 = u_thresh;
+    thresh4 = u_thresh;
     if (cell_num <= 300)
         thresh1 = (v_traces(cell_num,it)+b(cell_num))/a;
     else
         thresh1 = (v_traces(cell_num,it)+b_branch)/a;
+    end
+    if (cell_bar <= 300)
+        thresh2 = (v_traces(cell_bar,it)+b(cell_bar))/a;
+    else
+        thresh2 = (v_traces(cell_bar,it)+b_branch)/a;
+    end
+    if (cell_num3 <= 300)
+        thresh3 = (v_traces(cell_num3,it)+b(cell_num3))/a;
+    else
+        thresh3 = (v_traces(cell_num3,it)+b_branch)/a;
+    end
+    if (cell_bar4 <= 300)
+        thresh4 = (v_traces(cell_bar4,it)+b(cell_bar4))/a;
+    else
+        thresh4 = (v_traces(cell_bar4,it)+b_branch)/a;
     end
     if ((u_traces(cell_num, it) > thresh1) && (good_time1 == true))
         it_right1 = it;
@@ -284,19 +317,47 @@ for it = 1:Nt
     if (u_traces(cell_num, it) < u_thresh_small)
         good_time1 = true;
     end
-    %thresh2 = u_thresh;
-    thresh2 = (v_traces(cell_bar,it)+b(cell_bar))/a;
     if ((u_traces(cell_bar, it) > thresh2) && (good_time2 == true)) 
         it_right2 = it;
         it_left2 = it - 1;
         big_term = (thresh2 - u_traces(cell_bar,it_left2)) / (u_traces(cell_bar,it_right2) - thresh2);
         alpha = big_term / (1 + big_term);
-        A_bar(wave_count2) = it_left2 + alpha; % see if theyre equally spaced in time
+        A_bar(wave_count2) = it_left2 + alpha;
         wave_count2 = wave_count2 + 1;
         good_time2 = false;
     end
     if (u_traces(cell_bar, it) < u_thresh_small)
         good_time2 = true;
+    end
+    
+    % branch point
+    if ((u_traces(cell_num3, it) > thresh3) && (good_time3 == true))
+        it_right3 = it;
+        it_left3 = it - 1;
+        big_term = (thresh3 - u_traces(cell_num3,it_left3)) / (u_traces(cell_num3,it_right3) - thresh3);
+        alpha = big_term / (1 + big_term);
+        A2(wave_count3) = it_left3 + alpha;
+        beta = 1 - alpha;
+        v_left = v_traces(cell_num3,it_left3);
+        v_right = v_traces(cell_num3,it_right3);
+        vn2(wave_count3) = (alpha*v_right + beta*v_left);
+        wave_count3 = wave_count3 + 1;
+        good_time3 = false;
+    end
+    if (u_traces(cell_num3, it) < u_thresh_small)
+        good_time3 = true;
+    end
+    if ((u_traces(cell_bar4, it) > thresh4) && (good_time4 == true)) 
+        it_right4 = it;
+        it_left4 = it - 1;
+        big_term = (thresh4 - u_traces(cell_bar4,it_left4)) / (u_traces(cell_bar4,it_right4) - thresh4);
+        alpha = big_term / (1 + big_term);
+        A_bar2(wave_count4) = it_left4 + alpha; % see if theyre equally spaced in time
+        wave_count4 = wave_count4 + 1;
+        good_time4 = false;
+    end
+    if (u_traces(cell_bar4, it) < u_thresh_small)
+        good_time4 = true;
     end
 end
 
@@ -306,61 +367,92 @@ if (cell_num > last_cell)
 end
 
 
-figure(7);
-for k = 1:length(A)
-    plot(A(k),vn(k),'o','LineWidth',2,...
-        'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
-        'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
-end
-str = sprintf('Refractoriness vs. Activation Time');
-title(str);
-hold off;
-xlabel('Activation Time'); ylabel('Refractoriness'); 
-set(gca,'FontSize',16);
-
-figure(8);
-for k = 1:length(A)
-    plot(vn(k),(A(k)-A_bar(k)),'o','LineWidth',2,...
-        'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
-        'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
-end
-str = sprintf('Refractoriness vs. Delayed Activation Time');
-title(str);
-hold off;
-ylabel('Activation Time Increase'); xlabel('Refractoriness'); 
-set(gca,'FontSize',16);
-
-figure(9);
-for k = 1:(length(A) - 1)
-    plot((A(k)-A_bar(k)),vn(k+1),'o','LineWidth',2,...
-        'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
-        'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
-end
-str = sprintf('Refractoriness vs. Delayed Activation Time');
-title(str);
-hold off;
-xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
-set(gca,'FontSize',16);
-
-figure(10);
-for k = 1:length(A)
-    plot((A(k)-A_bar(k)),vn(k),'ro','LineWidth',2); hold on;
-end
-for k = 1:(length(A) - 1)
-    plot((A(k)-A_bar(k)),vn(k+1),'bo','LineWidth',2); hold on;
-end
-A_comet = zeros(1,2*length(A));
-v_comet = zeros(1,2*length(vn));
-for i = 2:2:(2*length(A)-3)
-    v_comet(i-1) = vn(i/2);
-    v_comet(i) = vn(i/2+1);
-    A_comet(i-1) = A(i/2)- A_bar(i/2);
-    A_comet(i) = A(i/2)- A_bar(i/2);
-end
-for i = 1:(length(A_comet)-1)
-    plot(A_comet(i:(i+1)),v_comet(i:(i+1)),'g','LineWidth',2);
-    pause;
-end
+% figure(7);
+% for k = 1:length(A)
+%     plot(A(k),vn(k),'o','LineWidth',2,...
+%         'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
+%         'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
+% end
+% str = sprintf('Refractoriness vs. Activation Time');
+% title(str);
+% hold off;
+% xlabel('Activation Time'); ylabel('Refractoriness'); 
+% set(gca,'FontSize',16);
+% 
+% figure(8);
+% for k = 1:length(A)
+%     plot(vn(k),(A(k)-A_bar(k)),'o','LineWidth',2,...
+%         'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
+%         'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
+% end
+% str = sprintf('Refractoriness vs. Delayed Activation Time');
+% title(str);
+% hold off;
+% ylabel('Activation Time Increase'); xlabel('Refractoriness'); 
+% set(gca,'FontSize',16);
+% 
+% figure(9);
+% for k = 1:(length(A) - 1)
+%     plot((A(k)-A_bar(k)),vn(k+1),'o','LineWidth',2,...
+%         'MarkerFaceColor',[1-(k/length(A)),0,(k/length(A))],...
+%         'MarkerEdgeColor',[1-(k/length(A)),0,(k/length(A))]); hold on;
+% end
+% str = sprintf('Refractoriness vs. Delayed Activation Time');
+% title(str);
+% hold off;
+% xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
+% set(gca,'FontSize',16);
+ 
+% figure(10); % end of interesting region
+% for k = 1:length(A)
+%     plot((A(k)-A_bar(k)),vn(k),'ro','LineWidth',2); hold on;
+% end
+% for k = 1:(length(A) - 1)
+%     plot((A(k)-A_bar(k)),vn(k+1),'bo','LineWidth',2); hold on;
+% end
+% A_comet = zeros(1,2*length(A));
+% v_comet = zeros(1,2*length(vn));
+% for i = 2:2:(2*length(A)-3)
+%     v_comet(i-1) = vn(i/2);
+%     v_comet(i) = vn(i/2+1);
+%     A_comet(i-1) = A(i/2)- A_bar(i/2);
+%     A_comet(i) = A(i/2)- A_bar(i/2);
+% end
+% % branch point
+% for k = 1:length(A2)
+%     plot((A2(k)-A_bar2(k)),vn2(k),'mo','LineWidth',2); hold on;
+% end
+% for k = 1:(length(A2) - 1)
+%     plot((A2(k)-A_bar2(k)),vn2(k+1),'ko','LineWidth',2); hold on;
+% end
+% A_comet2 = zeros(1,2*length(A2));
+% v_comet2 = zeros(1,2*length(vn2));
+% for i = 2:2:(2*length(A2)-3)
+%     v_comet2(i-1) = vn2(i/2);
+%     v_comet2(i) = vn2(i/2+1);
+%     A_comet2(i-1) = A2(i/2)- A_bar2(i/2);
+%     A_comet2(i) = A2(i/2)- A_bar2(i/2);
+% end
+% for i = 1:(length(A_comet)-2)
+%     plot(A_comet(i:(i+1)),v_comet(i:(i+1)),'g','LineWidth',2);
+%     xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
+%     str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+%     title(str);
+%     set(gca,'FontSize',16);
+%     pause;
+% end
+% for i = 1:(length(A_comet2)-2)
+%     plot(A_comet2(i:(i+1)),v_comet2(i:(i+1)),'c','LineWidth',2);
+%     xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
+%     str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+%     title(str);
+%     set(gca,'FontSize',16);
+%     pause;
+% end
+% xlabel('Activation Time Increase'); ylabel('Refractoriness'); 
+% str = sprintf('u & v for number of branches = %i, b = %f',N_branches,b(1));
+% title(str);
+% set(gca,'FontSize',16);
 
 %% ***************** Velocity graphs *************
 
